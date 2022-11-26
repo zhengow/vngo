@@ -1,7 +1,7 @@
 package database
 
 import (
-	"time"
+	"fmt"
 
 	"github.com/zhengow/vngo/consts"
 	"github.com/zhengow/vngo/model"
@@ -12,8 +12,8 @@ type Database interface {
 		symbol string,
 		exchange consts.Exchange,
 		interval consts.Interval,
-		start time.Time,
-		end time.Time,
+		start string,
+		end string,
 	) []model.Bar
 	SaveBarData([]model.Bar) bool
 }
@@ -24,8 +24,12 @@ func LoadBarData(
 	symbol string,
 	exchange consts.Exchange,
 	interval consts.Interval,
-	start time.Time,
-	end time.Time,
+	start string,
+	end string,
 ) []model.Bar {
+	if _db == nil {
+		fmt.Println("db is nil")
+		return nil
+	}
 	return _db.LoadBarData(symbol, exchange, interval, start, end)
 }

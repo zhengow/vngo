@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/zhengow/vngo/consts"
 	"github.com/zhengow/vngo/model"
@@ -36,8 +35,8 @@ func (s *Sqlite) LoadBarData(
 	symbol string,
 	exchange consts.Exchange,
 	interval consts.Interval,
-	start time.Time,
-	end time.Time,
+	start string,
+	end string,
 ) []model.Bar {
 	var bars []model.Bar
 	s.db.Where("symbol = ? AND exchange = ? AND interval = ? AND datetime >= ? AND datetime <= ?",

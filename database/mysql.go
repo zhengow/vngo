@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/zhengow/vngo/config"
 	"github.com/zhengow/vngo/consts"
@@ -36,19 +35,19 @@ func NewMysql() {
 	_mysql = &Mysql{
 		db: db,
 	}
-	_db = _sqlite
+	_db = _mysql
 }
 
 func (s *Mysql) LoadBarData(
 	symbol string,
 	exchange consts.Exchange,
 	interval consts.Interval,
-	start time.Time,
-	end time.Time,
+	start string,
+	end string,
 ) []model.Bar {
 	var bars []model.Bar
-	s.db.Where("symbol = ? AND exchange = ? AND interval = ? AND datetime >= ? AND datetime <= ?",
-		symbol, exchange, interval, start, end).Order("datetime").Find(&bars)
+	s.db.Table("dbbardata").Where(fmt.Sprintf("symbol='%s' AND exchange='%s' AND interval='%s' AND datetime>='%s' AND datetime<='%s'",
+		symbol, exchange, interval, start, end)).Order("datetime").Find(&bars)
 	return bars
 }
 
