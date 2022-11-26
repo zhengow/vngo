@@ -40,8 +40,8 @@ func (b *BacktestingEngine) AddStrategy(strategy strategy.Strategy, setting map[
 	b.strategy = strategy
 }
 
-func (b *BacktestingEngine) LoadData(db database.Database) {
-	bars := db.LoadBarData("testsymbol", consts.ExchangeEnum.BINANCE, consts.IntervalEnum.MINUTE, time.Now().AddDate(-1, 0, 0), time.Now())
+func (b *BacktestingEngine) LoadData() {
+	bars := database.LoadBarData("BTCDOMUSDT", consts.ExchangeEnum.BINANCE, consts.IntervalEnum.MINUTE, time.Now().AddDate(-1, 0, 0), time.Now())
 	for _, bar := range bars {
 		fmt.Println(time.Time(bar.Datetime).Format(consts.DateFormat))
 	}

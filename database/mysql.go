@@ -4,35 +4,42 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/zhengow/vngo/config"
 	"github.com/zhengow/vngo/consts"
 	"github.com/zhengow/vngo/model"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-type Sqlite struct {
+type Mysql struct {
 	db *gorm.DB
 }
 
-var _sqlite *Sqlite
+var _mysql *Mysql
 
-func NewSqlite() {
-	if _sqlite != nil {
-		_db = _sqlite
+func NewMysql() {
+	if _mysql != nil {
+		_db = _mysql
 	}
-	db, err := gorm.Open(sqlite.Open("vngo.db"), &gorm.Config{})
-	db.AutoMigrate(&model.Bar{})
+	mysqlConfig := config.Config.Mysql
+	user := mysqlConfig.User
+	password := mysqlConfig.Password
+	port := mysqlConfig.Port
+	host := mysqlConfig.Host
+	dbName := mysqlConfig.Name
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, port, dbName)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	_sqlite = &Sqlite{
+	_mysql = &Mysql{
 		db: db,
 	}
 	_db = _sqlite
 }
 
-func (s *Sqlite) LoadBarData(
+func (s *Mysql) LoadBarData(
 	symbol string,
 	exchange consts.Exchange,
 	interval consts.Interval,
@@ -45,7 +52,7 @@ func (s *Sqlite) LoadBarData(
 	return bars
 }
 
-func (s *Sqlite) SaveBarData(bars []model.Bar) bool {
+func (s *Mysql) SaveBarData(bars []model.Bar) bool {
 	tx := s.db.CreateInBatches(bars, 100)
 	if tx.Error != nil {
 		fmt.Println(tx.Error)

@@ -1,0 +1,6 @@
+mysql:
+  user: your_user_name
+  password: your_password
+  host: localhost
+  port: 3306
+  name: vngo
