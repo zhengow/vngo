@@ -23,8 +23,10 @@ type exchange struct {
     BINANCE Exchange
 }
 
+const BINANCE = "BINANCE"
+
 var ExchangeEnum = exchange {
-    BINANCE: "BINANCE",
+    BINANCE: BINANCE,
 }
 
 const DateFormat = "2006-01-02 15:04:05"

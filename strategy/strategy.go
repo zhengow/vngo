@@ -1,16 +1,29 @@
 package strategy
 
-import "reflect"
-
-type Strategy struct {
-	Test int
+type VirtualStrategy struct {
+	Init bool
 }
 
-func (s *Strategy) SetSetting(setting map[string]interface{}) {
-	fields := reflect.ValueOf(s).Elem()
-	for name, value := range setting {
-		filedValue := reflect.ValueOf(value)
-		fields.FieldByName(name).Set(filedValue)
-	}
+func (s VirtualStrategy) DoneInit() {
+	s.Init = true
+	_ = s.Init
 }
 
+func (s VirtualStrategy) SetSetting(setting map[string]interface{}) {
+	println("not implement set setting")
+}
+
+func (s VirtualStrategy) OnInit() {
+	println("not implement on init")
+}
+
+func (s VirtualStrategy) OnStart() {
+	println("not implement on start")
+}
+
+type Strategy interface {
+	SetSetting(setting map[string]interface{})
+	OnInit()
+	DoneInit()
+	OnStart()
+}
