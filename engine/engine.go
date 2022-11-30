@@ -112,13 +112,22 @@ func (b *BacktestingEngine) RunBacktesting() {
 			b.strategy.DoneInit()
 		}
 		b.newBars(dt)
-		b.strategy.OnStart()
 	}
-	println("run")
+	// println(b.strategy.Foo())
 }
 
 func (b *BacktestingEngine) newBars(dt time.Time) {
+	b.datetime = &dt
+	bars := make(map[string]model.Bar)
+	for _, symbol := range b.symbols {
+		bars[symbol] = b.historyData[symbol][dt]
+	}
+	b.crossLimitOrder()
+	b.strategy.OnBars(bars)
+}
 
+func (b *BacktestingEngine) crossLimitOrder() {
+	// println("cross limit order")
 }
 
 func (b *BacktestingEngine) CalculateResult() {
