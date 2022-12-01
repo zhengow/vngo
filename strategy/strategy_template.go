@@ -3,7 +3,7 @@ package strategy
 import "reflect"
 
 type MyStrategy struct {
-	VirtualStrategy
+	BaseStrategy
 	Test int
 }
 

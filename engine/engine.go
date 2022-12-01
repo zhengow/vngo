@@ -3,7 +3,6 @@ package engine
 import (
 	"fmt"
 	"sort"
-	"strings"
 	"time"
 
 	mapset "github.com/deckarep/golang-set"
@@ -25,6 +24,7 @@ type BacktestingEngine struct {
 	dts         mapset.Set
 	historyData map[string]map[time.Time]model.Bar
 	datetime    *time.Time
+	priceTicks  map[string]int
 }
 
 var _BacktestingEngine *BacktestingEngine
@@ -70,7 +70,7 @@ func (b *BacktestingEngine) LoadData() {
 	start := b.start.Format(consts.DateFormat)
 	end := b.end.Format(consts.DateFormat)
 	for _, _symbol := range b.symbols {
-		symbol, exchange := parseSymbol(_symbol)
+		symbol, exchange := utils.ParseSymbol(_symbol)
 		if symbol == "" || exchange == "" {
 			continue
 		}
@@ -93,6 +93,7 @@ func (b *BacktestingEngine) LoadData() {
 }
 
 func (b *BacktestingEngine) RunBacktesting() {
+	b.strategy.Inject(newOrderEngine(b.priceTicks))
 	b.strategy.OnInit()
 	dts := make([]time.Time, b.dts.Cardinality())
 	b.dts.Each(func(ele interface{}) bool {
@@ -132,13 +133,4 @@ func (b *BacktestingEngine) crossLimitOrder() {
 
 func (b *BacktestingEngine) CalculateResult() {
 	println("calc")
-}
-
-func parseSymbol(symbol string) (string, string) {
-	parts := strings.Split(symbol, ".")
-	if len(parts) == 2 {
-		return parts[0], parts[1]
-	}
-	fmt.Println("invalid symbol: ", symbol)
-	return "", ""
 }
