@@ -212,5 +212,5 @@ func (b *BacktestingEngine) CalculateResult() {
         netPnls[idx+1] = pnl
     }
     //fmt.Println(netPnls)
-    chart(b.dts, netPnls)
+    chart(b.dts, netPnls, "")
 }

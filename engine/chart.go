@@ -1,10 +1,13 @@
 package engine
 
 import (
+    "fmt"
     "github.com/go-echarts/go-echarts/v2/charts"
     "github.com/go-echarts/go-echarts/v2/opts"
     "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/utils"
+    "io/ioutil"
+    "net/http"
     "os"
     "time"
 )
@@ -58,12 +61,23 @@ func getGlobalOpts() []charts.GlobalOpts {
     return []charts.GlobalOpts{titleOpts, initOpts, toolBoxOpts, toolTipOpts, dataZoomOpts}
 }
 
-func chart(x []time.Time, y []float64) {
+func chart(x []time.Time, y []float64, _filename string) {
     line := charts.NewLine()
     globalOpts := getGlobalOpts()
     line.SetGlobalOptions(globalOpts...)
     lineData := getYData(y)
     line.SetXAxis(getXData(x)).AddSeries("pnl", lineData)
-    f, _ := os.Create("line.html")
-    line.Render(f)
+    if _filename != "" {
+        f, _ := os.Create(fmt.Sprintf("%s.html", _filename))
+        line.Render(f)
+    } else {
+        f, _ := os.Create("vngo.html")
+        line.Render(f)
+        http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
+            content, _ := ioutil.ReadFile(f.Name())
+            w.Write(content)
+        })
+        fmt.Println("chart: http://localhost:8081")
+        http.ListenAndServe(":8081", nil)
+    }
 }
