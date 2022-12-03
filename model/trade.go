@@ -6,14 +6,14 @@ import (
 )
 
 type TradeData struct {
-    symbol    string
-    exchange  consts.Exchange
-    orderId   int
-    tradeId   int
-    direction consts.Direction
-    price     float64
-    volume    float64
-    datetime  time.Time
+    Symbol    string
+    Exchange  consts.Exchange
+    OrderId   int
+    TradeId   int
+    Direction consts.Direction
+    Price     float64
+    Volume    float64
+    Datetime  time.Time
 }
 
 func NewTradeData(symbol string,
@@ -26,13 +26,13 @@ func NewTradeData(symbol string,
     datetime time.Time,
 ) *TradeData {
     return &TradeData{
-        symbol:    symbol,
-        exchange:  exchange,
-        orderId:   orderId,
-        tradeId:   tradeId,
-        direction: direction,
-        price:     price,
-        volume:    volume,
-        datetime:  datetime,
+        Symbol:    symbol,
+        Exchange:  exchange,
+        OrderId:   orderId,
+        TradeId:   tradeId,
+        Direction: direction,
+        Price:     price,
+        Volume:    volume,
+        Datetime:  datetime,
     }
 }

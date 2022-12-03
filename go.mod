@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/deckarep/golang-set v1.8.0
+	github.com/go-echarts/go-echarts/v2 v2.2.4
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/mysql v1.4.4
 	gorm.io/driver/sqlite v1.4.3

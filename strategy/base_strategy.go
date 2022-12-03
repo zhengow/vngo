@@ -5,20 +5,22 @@ import (
 )
 
 type strategyInterface interface {
-    Buy(symbol string, price, volume float64) int
-    Sell(symbol string, price, volume float64) int
+    Buy(symbol model.Symbol, price, volume float64) int
+    Sell(symbol model.Symbol, price, volume float64) int
 }
 
 type BaseStrategy struct {
     strategyInterface
-    init           bool
-    trading        bool
     activeOrderIds []int
 }
 
 func (s *BaseStrategy) Inject(sI strategyInterface) {
     s.strategyInterface = sI
 }
+
+//func (s *BaseStrategy) IsInit() bool {
+//    return s.init
+//}
 
 func (s *BaseStrategy) SetSetting(setting map[string]interface{}) {
     println("not implement set setting")
@@ -29,7 +31,7 @@ func (s *BaseStrategy) OnInit() {
 }
 
 func (s *BaseStrategy) DoneInit() {
-    s.init = true
+    //s.init = true
 }
 
 func (s *BaseStrategy) OnStart() {
@@ -41,11 +43,12 @@ func (s *BaseStrategy) OnBars(bars map[string]model.Bar) {
 }
 
 func (s *BaseStrategy) UpdateTrade(trade model.TradeData) {
-    println("not implement update trade")
+    //println("not implement update trade")
 }
 
 type Strategy interface {
     Inject(strategyInterface)
+    //IsInit() bool
     SetSetting(map[string]interface{})
     OnInit()
     DoneInit()

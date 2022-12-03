@@ -7,38 +7,37 @@ import (
 )
 
 type orderEngine struct {
-    priceTicks        map[string]int
-    trading           bool
+    priceTicks map[string]int
+    //trading           bool
     activeLimitOrders map[int]*model.Order
     limitOrderCount   int
 }
 
-func (o *orderEngine) Buy(symbol string, price, volume float64) int {
+func (o *orderEngine) Buy(symbol model.Symbol, price, volume float64) int {
     return o.sendOrder(symbol, consts.DirectionEnum.LONG, price, volume)
 }
 
-func (o *orderEngine) Sell(symbol string, price, volume float64) int {
+func (o *orderEngine) Sell(symbol model.Symbol, price, volume float64) int {
     return o.sendOrder(symbol, consts.DirectionEnum.SHORT, price, volume)
 }
 
-func (o *orderEngine) sendOrder(_symbol string, direction consts.Direction, price, volume float64) int {
+func (o *orderEngine) sendOrder(symbol model.Symbol, direction consts.Direction, price, volume float64) int {
     //if !o.trading {
     //    return -1
     //}
     priceTick := 5
-    if val, ok := o.priceTicks[_symbol]; ok {
+    if val, ok := o.priceTicks[symbol.Symbol]; ok {
         priceTick = val
     }
     price = utils.RoundTo(price, priceTick)
-    _, exchange := utils.ParseSymbol(_symbol)
     o.limitOrderCount++
-    order := model.NewOrder(_symbol, consts.Exchange(exchange), o.limitOrderCount, direction, price, volume)
+    order := model.NewOrder(symbol.Symbol, symbol.Exchange, o.limitOrderCount, direction, price, volume)
     o.activeLimitOrders[o.limitOrderCount] = order
     return o.limitOrderCount
 }
 
 func (o *orderEngine) startTrading() {
-    o.trading = true
+    //o.trading = true
 }
 
 func newOrderEngine(priceTicks map[string]int) *orderEngine {

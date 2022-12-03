@@ -1,35 +1,33 @@
 package database
 
 import (
-	"fmt"
+    "fmt"
 
-	"github.com/zhengow/vngo/consts"
-	"github.com/zhengow/vngo/model"
+    "github.com/zhengow/vngo/consts"
+    "github.com/zhengow/vngo/model"
 )
 
 type Database interface {
-	LoadBarData(
-		symbol string,
-		exchange consts.Exchange,
-		interval consts.Interval,
-		start string,
-		end string,
-	) []model.Bar
-	SaveBarData([]model.Bar) bool
+    LoadBarData(
+        symbol model.Symbol,
+        interval consts.Interval,
+        start string,
+        end string,
+    ) []model.Bar
+    SaveBarData([]model.Bar) bool
 }
 
 var _db Database // default sqlite
 
 func LoadBarData(
-	symbol string,
-	exchange consts.Exchange,
-	interval consts.Interval,
-	start string,
-	end string,
+    symbol model.Symbol,
+    interval consts.Interval,
+    start string,
+    end string,
 ) []model.Bar {
-	if _db == nil {
-		fmt.Println("db is nil")
-		return nil
-	}
-	return _db.LoadBarData(symbol, exchange, interval, start, end)
+    if _db == nil {
+        fmt.Println("db is nil")
+        return nil
+    }
+    return _db.LoadBarData(symbol, interval, start, end)
 }

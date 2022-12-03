@@ -23,8 +23,7 @@ func (s MyStrategy) OnInit() {
 }
 
 func (s MyStrategy) OnBars(bars map[string]model.Bar) {
-    for symbol, bar := range bars {
-        //fmt.Println(symbol, bar.Datetime.Format())
-        s.Buy(symbol, bar.ClosePrice, 1)
+    for _, bar := range bars {
+        s.Buy(bar.Symbol, bar.ClosePrice, 1)
     }
 }

@@ -15,19 +15,21 @@ import (
 )
 
 type BacktestingEngine struct {
-    symbols     []string
+    symbols     []*model.Symbol
     interval    consts.Interval
     start       *time.Time
     end         *time.Time
     rates       map[string]float64
     capital     float64
     strategy    strategy.Strategy
-    dts         mapset.Set
+    _dts        mapset.Set
+    dts         []time.Time
     historyData map[string]map[time.Time]model.Bar
     datetime    *time.Time
     priceTicks  map[string]int
     tradeCount  int
     trades      map[int]*model.TradeData
+    closes      map[time.Time]map[string]float64
     *orderEngine
 }
 
@@ -38,15 +40,16 @@ func NewBacktestingEngine() *BacktestingEngine {
         return _BacktestingEngine
     }
     _BacktestingEngine = &BacktestingEngine{
-        dts:         mapset.NewSet(),
+        _dts:        mapset.NewSet(),
         historyData: make(map[string]map[time.Time]model.Bar),
         trades:      make(map[int]*model.TradeData),
+        closes:      make(map[time.Time]map[string]float64),
     }
     return _BacktestingEngine
 }
 
 func (b *BacktestingEngine) SetParameters(
-    symbols []string,
+    symbols []*model.Symbol,
     interval consts.Interval,
     start,
     end time.Time,
@@ -74,21 +77,17 @@ func (b *BacktestingEngine) LoadData() {
     }
     start := b.start.Format(consts.DateFormat)
     end := b.end.Format(consts.DateFormat)
-    for _, _symbol := range b.symbols {
-        symbol, exchange := utils.ParseSymbol(_symbol)
-        if symbol == "" || exchange == "" {
-            continue
+    for _, symbol := range b.symbols {
+        if b.historyData[symbol.Symbol] == nil {
+            b.historyData[symbol.Symbol] = make(map[time.Time]model.Bar)
         }
-        if b.historyData[_symbol] == nil {
-            b.historyData[_symbol] = make(map[time.Time]model.Bar)
-        }
-        bars := database.LoadBarData(symbol, consts.Exchange(exchange), b.interval, start, end)
+        bars := database.LoadBarData(*symbol, b.interval, start, end)
         for _, bar := range bars {
             _time := time.Time(bar.Datetime)
-            b.dts.Add(_time)
-            b.historyData[_symbol][_time] = bar
+            b._dts.Add(_time)
+            b.historyData[symbol.Symbol][_time] = bar
         }
-        fmt.Printf("%s load success, length: %d\n", symbol, len(b.historyData[_symbol]))
+        fmt.Printf("%s.%s load success, length: %d\n", symbol.Symbol, symbol.Exchange, len(b.historyData[symbol.Symbol]))
     }
 }
 
@@ -96,18 +95,18 @@ func (b *BacktestingEngine) RunBacktesting() {
     b.orderEngine = newOrderEngine(b.priceTicks)
     b.strategy.Inject(b.orderEngine)
     b.strategy.OnInit()
-    dts := make([]time.Time, b.dts.Cardinality())
+    b.dts = make([]time.Time, b._dts.Cardinality())
     cnt := 0
-    b.dts.Each(func(ele interface{}) bool {
-        dts[cnt] = ele.(time.Time)
+    b._dts.Each(func(ele interface{}) bool {
+        b.dts[cnt] = ele.(time.Time)
         cnt++
         return false
     })
-    sort.Slice(dts, func(i, j int) bool {
-        return dts[i].Before(dts[j])
+    sort.Slice(b.dts, func(i, j int) bool {
+        return b.dts[i].Before(b.dts[j])
     })
 
-    for _, dt := range dts {
+    for _, dt := range b.dts {
         if b.datetime != nil && dt.Day() != b.datetime.Day() {
             b.strategy.DoneInit()
         }
@@ -119,10 +118,19 @@ func (b *BacktestingEngine) newBars(dt time.Time) {
     b.datetime = &dt
     bars := make(map[string]model.Bar)
     for _, symbol := range b.symbols {
-        bars[symbol] = b.historyData[symbol][dt]
+        bars[symbol.Symbol] = b.historyData[symbol.Symbol][dt]
     }
     b.crossLimitOrder(bars)
     b.strategy.OnBars(bars)
+    b.updateClose(bars)
+}
+
+func (b *BacktestingEngine) updateClose(bars map[string]model.Bar) {
+    currentCloses := make(map[string]float64)
+    for symbol, bar := range bars {
+        currentCloses[symbol] = bar.ClosePrice
+    }
+    b.closes[*b.datetime] = currentCloses
 }
 
 func (b *BacktestingEngine) crossLimitOrder(bars map[string]model.Bar) {
@@ -168,5 +176,41 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]model.Bar) {
 }
 
 func (b *BacktestingEngine) CalculateResult() {
-    println("calc")
+    trades := make(map[time.Time][]*model.TradeData)
+    for _, trade := range b.trades {
+        if dtTrades, ok := trades[trade.Datetime]; ok {
+            dtTrades = append(dtTrades, trade)
+        } else {
+            trades[trade.Datetime] = []*model.TradeData{trade}
+        }
+    }
+    currentPos := make(map[string]float64)
+    netPnls := make([]float64, len(b.dts))
+    netPnls[0] = b.capital
+    for idx, dt := range b.dts[1:] {
+        preCloses := b.closes[b.dts[idx]]
+        closes := b.closes[dt]
+        pnl := netPnls[idx]
+        for symbol, _close := range closes {
+            pos := currentPos[symbol]
+            if pos == 0 {
+                continue
+            }
+            pnl += pos * (_close - preCloses[symbol])
+        }
+        if dtTrades, ok := trades[dt]; ok {
+            for _, _trade := range dtTrades {
+                symbol := _trade.Symbol
+                volume := _trade.Volume
+                if _trade.Direction == consts.DirectionEnum.SHORT {
+                    volume *= -1
+                }
+                currentPos[symbol] += volume
+                pnl += volume * (closes[symbol] - _trade.Price)
+            }
+        }
+        netPnls[idx+1] = pnl
+    }
+    //fmt.Println(netPnls)
+    chart(b.dts, netPnls)
 }
