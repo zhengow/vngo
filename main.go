@@ -21,10 +21,13 @@ func getSymbols(symbols []string, exchange consts.Exchange) []*model.Symbol {
 func main() {
     b := engine.NewBacktestingEngine()
     symbols := getSymbols([]string{"BTCDOMUSDT"}, consts.ExchangeEnum.BINANCE)
-    b.SetParameters(symbols, consts.IntervalEnum.MINUTE, time.Now().AddDate(0, -1, 0), time.Now(), nil, 10000)
-    b.AddStrategy(&strategy.MyStrategy{}, map[string]interface{}{"Test": 1})
+    startDate := time.Date(2022, 7, 1, 0, 0, 0, 0, time.Local)
+    endDate := time.Date(2022, 8, 1, 0, 0, 0, 0, time.Local)
+    b.SetParameters(symbols, consts.IntervalEnum.MINUTE, startDate, endDate, nil, 10000)
+    b.AddStrategy(&strategy.MyStrategy{}, nil)
     database.NewMysql()
     b.LoadData()
     b.RunBacktesting()
     b.CalculateResult()
+    b.ShowChart()
 }

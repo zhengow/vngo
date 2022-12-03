@@ -2,28 +2,16 @@ package strategy
 
 import (
     "github.com/zhengow/vngo/model"
-    "reflect"
 )
 
-type MyStrategy struct {
+type TemplateStrategy struct {
     BaseStrategy
-    Test int
 }
 
-func (s MyStrategy) SetSetting(setting map[string]interface{}) {
-    fields := reflect.ValueOf(&s).Elem()
-    for name, value := range setting {
-        filedValue := reflect.ValueOf(value)
-        fields.FieldByName(name).Set(filedValue)
-    }
+func (s *TemplateStrategy) OnBars(bars map[string]model.Bar) {
+    println("implement me")
 }
 
-func (s MyStrategy) OnInit() {
-    println("on init")
-}
-
-func (s MyStrategy) OnBars(bars map[string]model.Bar) {
-    for _, bar := range bars {
-        s.Buy(bar.Symbol, bar.ClosePrice, 1)
-    }
+func (s *TemplateStrategy) UpdateTrade(trade model.TradeData) {
+    println("implement me")
 }

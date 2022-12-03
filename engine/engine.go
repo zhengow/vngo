@@ -30,6 +30,7 @@ type BacktestingEngine struct {
     tradeCount  int
     trades      map[int]*model.TradeData
     closes      map[time.Time]map[string]float64
+    netPnls     []float64
     *orderEngine
 }
 
@@ -94,7 +95,6 @@ func (b *BacktestingEngine) LoadData() {
 func (b *BacktestingEngine) RunBacktesting() {
     b.orderEngine = newOrderEngine(b.priceTicks)
     b.strategy.Inject(b.orderEngine)
-    b.strategy.OnInit()
     b.dts = make([]time.Time, b._dts.Cardinality())
     cnt := 0
     b._dts.Each(func(ele interface{}) bool {
@@ -107,9 +107,6 @@ func (b *BacktestingEngine) RunBacktesting() {
     })
 
     for _, dt := range b.dts {
-        if b.datetime != nil && dt.Day() != b.datetime.Day() {
-            b.strategy.DoneInit()
-        }
         b.newBars(dt)
     }
 }
@@ -135,7 +132,7 @@ func (b *BacktestingEngine) updateClose(bars map[string]model.Bar) {
 
 func (b *BacktestingEngine) crossLimitOrder(bars map[string]model.Bar) {
     for _, order := range b.orderEngine.activeLimitOrders {
-        bar := bars[order.Symbol]
+        bar := bars[order.Symbol.Symbol]
         longCrossPrice := bar.LowPrice
         shortCrossPrice := bar.HighPrice
         longBestPrice := bar.OpenPrice
@@ -161,7 +158,6 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]model.Bar) {
 
         tradeData := model.NewTradeData(
             order.Symbol,
-            order.Exchange,
             order.OrderId,
             b.tradeCount,
             order.Direction,
@@ -170,6 +166,11 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]model.Bar) {
             *b.datetime,
         )
 
+        incrementPos := order.Volume
+        if order.Direction == consts.DirectionEnum.SHORT {
+            incrementPos = -order.Volume
+        }
+        b.orderEngine.UpdatePositions(order.Symbol, incrementPos)
         b.strategy.UpdateTrade(*tradeData)
         b.trades[b.tradeCount] = tradeData
     }
@@ -200,7 +201,7 @@ func (b *BacktestingEngine) CalculateResult() {
         }
         if dtTrades, ok := trades[dt]; ok {
             for _, _trade := range dtTrades {
-                symbol := _trade.Symbol
+                symbol := _trade.Symbol.Symbol
                 volume := _trade.Volume
                 if _trade.Direction == consts.DirectionEnum.SHORT {
                     volume *= -1
@@ -211,6 +212,9 @@ func (b *BacktestingEngine) CalculateResult() {
         }
         netPnls[idx+1] = pnl
     }
-    //fmt.Println(netPnls)
-    chart(b.dts, netPnls, "")
+    b.netPnls = netPnls
+}
+
+func (b *BacktestingEngine) ShowChart() {
+    chartPNL(b.dts, b.netPnls, "")
 }

@@ -58,10 +58,13 @@ func getGlobalOpts() []charts.GlobalOpts {
     }, opts.DataZoom{
         Type: "slider",
     })
-    return []charts.GlobalOpts{titleOpts, initOpts, toolBoxOpts, toolTipOpts, dataZoomOpts}
+    yAxisOpts := charts.WithYAxisOpts(opts.YAxis{
+        Scale: true,
+    })
+    return []charts.GlobalOpts{titleOpts, initOpts, toolBoxOpts, toolTipOpts, dataZoomOpts, yAxisOpts}
 }
 
-func chart(x []time.Time, y []float64, _filename string) {
+func chartPNL(x []time.Time, y []float64, _filename string) {
     line := charts.NewLine()
     globalOpts := getGlobalOpts()
     line.SetGlobalOptions(globalOpts...)
@@ -77,7 +80,7 @@ func chart(x []time.Time, y []float64, _filename string) {
             content, _ := ioutil.ReadFile(f.Name())
             w.Write(content)
         })
-        fmt.Println("chart: http://localhost:8081")
+        fmt.Println("chartPNL: http://localhost:8081")
         http.ListenAndServe(":8081", nil)
     }
 }

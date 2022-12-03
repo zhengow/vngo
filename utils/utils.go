@@ -28,3 +28,25 @@ func RoundTo(price float64, priceTick int) float64 {
     res, _ := strconv.ParseFloat(strconv.FormatFloat(price, 'f', priceTick, 64), 64)
     return res
 }
+
+func FindSmaller(price float64, prices []float64) float64 {
+    reversedPrices := make([]float64, len(prices))
+    for i := 0; i < len(prices); i++ {
+        reversedPrices[i] = prices[len(prices)-i-1]
+    }
+    for _, p := range reversedPrices {
+        if p < price {
+            return p
+        }
+    }
+    return 0
+}
+
+func FindLarger(price float64, prices []float64) float64 {
+    for _, p := range prices {
+        if p > price {
+            return p
+        }
+    }
+    return prices[len(prices)-1]
+}

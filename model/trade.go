@@ -6,8 +6,7 @@ import (
 )
 
 type TradeData struct {
-    Symbol    string
-    Exchange  consts.Exchange
+    Symbol    Symbol
     OrderId   int
     TradeId   int
     Direction consts.Direction
@@ -16,8 +15,7 @@ type TradeData struct {
     Datetime  time.Time
 }
 
-func NewTradeData(symbol string,
-    exchange consts.Exchange,
+func NewTradeData(symbol Symbol,
     orderId int,
     tradeId int,
     direction consts.Direction,
@@ -27,7 +25,6 @@ func NewTradeData(symbol string,
 ) *TradeData {
     return &TradeData{
         Symbol:    symbol,
-        Exchange:  exchange,
         OrderId:   orderId,
         TradeId:   tradeId,
         Direction: direction,

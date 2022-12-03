@@ -5,8 +5,7 @@ import (
 )
 
 type Order struct {
-    Symbol    string
-    Exchange  consts.Exchange
+    Symbol    Symbol
     OrderId   int
     Direction consts.Direction
     Price     float64
@@ -15,8 +14,7 @@ type Order struct {
     //datetime time.Time
 }
 
-func NewOrder(symbol string,
-    exchange consts.Exchange,
+func NewOrder(symbol Symbol,
     orderId int,
     direction consts.Direction,
     price float64,
@@ -26,7 +24,6 @@ func NewOrder(symbol string,
 ) *Order {
     return &Order{
         Symbol:    symbol,
-        Exchange:  exchange,
         OrderId:   orderId,
         Direction: direction,
         Price:     price,
