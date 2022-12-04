@@ -215,6 +215,22 @@ func (b *BacktestingEngine) CalculateResult() {
     b.netPnls = netPnls
 }
 
-func (b *BacktestingEngine) ShowChart() {
+func (b *BacktestingEngine) ShowPNLChart() {
     chartPNL(b.dts, b.netPnls, "")
+}
+
+func (b *BacktestingEngine) ShowKLineChart() {
+    for _, symbol := range b.symbols {
+        bars := make([]model.Bar, len(b.dts))
+        for idx, dt := range b.dts {
+            bars[idx] = b.historyData[symbol.Symbol][dt]
+        }
+        trades := make([]*model.TradeData, 0)
+        for _, trade := range b.trades {
+            if trade.Symbol.Symbol == symbol.Symbol {
+                trades = append(trades, trade)
+            }
+        }
+        chartKLines(b.dts, bars, trades, symbol.Symbol)
+    }
 }

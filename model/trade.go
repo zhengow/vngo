@@ -33,3 +33,11 @@ func NewTradeData(symbol Symbol,
         Datetime:  datetime,
     }
 }
+
+func (t *TradeData) IsBuy() bool {
+    return t.Direction == consts.DirectionEnum.LONG
+}
+
+func (t *TradeData) IsSell() bool {
+    return t.Direction == consts.DirectionEnum.SHORT
+}

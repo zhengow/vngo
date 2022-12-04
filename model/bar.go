@@ -22,3 +22,7 @@ type Bar struct {
 func (b *Bar) FullName() string {
     return fmt.Sprintf("%s.%s", b.Symbol, b.Exchange)
 }
+
+func (b *Bar) GetKLineData() [4]float64 {
+    return [4]float64{b.OpenPrice, b.ClosePrice, b.LowPrice, b.HighPrice}
+}
