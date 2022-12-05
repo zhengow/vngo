@@ -167,7 +167,7 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]model.Bar) {
 }
 
 func (b *BacktestingEngine) ShowPNLChart() {
-	chart.ChartPNL(b.dts, b.netPnls, "")
+	chart.ChartPNL(b.dts, b.balances, "")
 }
 
 func (b *BacktestingEngine) ShowKLineChart() {

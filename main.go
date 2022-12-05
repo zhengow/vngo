@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	"github.com/zhengow/vngo/model"
@@ -20,6 +21,7 @@ func getSymbols(symbols []string, exchange consts.Exchange) []*model.Symbol {
 }
 
 func main() {
+	log.SetFlags(log.Ldate | log.Ltime)
 	b := engine.NewBacktestingEngine()
 	symbols := getSymbols([]string{"BTCDOMUSDT"}, consts.ExchangeEnum.BINANCE)
 	startDate := time.Date(2022, 7, 1, 0, 0, 0, 0, time.Local)
@@ -29,7 +31,7 @@ func main() {
 	database.NewMysql()
 	b.LoadData()
 	b.RunBacktesting()
-	b.CalculateResult()
-	//b.ShowPNLChart()
-	b.ShowKLineChart()
+	b.CalculateResult(true)
+	b.ShowPNLChart()
+	// b.ShowKLineChart()
 }
