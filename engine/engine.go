@@ -59,7 +59,7 @@ func (b *BacktestingEngine) SetParameters(
 	b.interval = interval
 	b.start = &start
 	b.end = &end
-	b.rates = rates
+	b.setRates(rates)
 	b.setPriceTicks(priceTicks)
 	b.setCaptial(capital)
 }

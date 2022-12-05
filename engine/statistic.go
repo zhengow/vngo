@@ -13,6 +13,7 @@ type statisticEngine struct {
 	trades  map[int]*model.TradeData
 	closes  map[time.Time]map[string]float64
 	netPnls []float64
+	rates   map[model.Symbol]float64
 }
 
 func (s *statisticEngine) setCaptial(capital float64) {
@@ -61,7 +62,11 @@ func (s *statisticEngine) CalculateResult() {
 					volume *= -1
 				}
 				currentPos[symbol] += volume
-				pnl += volume * (closes[symbol] - _trade.Price)
+				rate := 0.0
+				if r, ok := s.rates[_trade.Symbol]; ok {
+					rate = r
+				}
+				pnl += volume * (closes[symbol] - _trade.Price) - rate * _trade.Price * _trade.Volume
 			}
 		}
 		netPnls[idx+1] = pnl
@@ -74,6 +79,10 @@ func newStatisticEngine() *statisticEngine {
 		trades: make(map[int]*model.TradeData),
 		closes: make(map[time.Time]map[string]float64),
 	}
+}
+
+func (s *statisticEngine) setRates(rates map[model.Symbol]float64) {
+	s.rates = rates
 }
 
 //
