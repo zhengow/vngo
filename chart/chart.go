@@ -1,4 +1,4 @@
-package engine
+package chart
 
 import (
     "fmt"
@@ -69,7 +69,7 @@ func getGlobalOpts() []charts.GlobalOpts {
     return []charts.GlobalOpts{titleOpts, initOpts, toolBoxOpts, toolTipOpts, dataZoomOpts, yAxisOpts}
 }
 
-func chartPNL(x []time.Time, y []float64, _filename string) {
+func ChartPNL(x []time.Time, y []float64, _filename string) {
     line := charts.NewLine()
     globalOpts := getGlobalOpts()
     line.SetGlobalOptions(globalOpts...)
@@ -167,7 +167,7 @@ func chartTradeScatter(x []time.Time, trades []*model.TradeData) *charts.Scatter
     return scatter
 }
 
-func chartKLines(x []time.Time, y []model.Bar, trades []*model.TradeData, _filename string) {
+func ChartKLines(x []time.Time, y []model.Bar, trades []*model.TradeData, _filename string) {
     kline := charts.NewKLine()
     kline.SetGlobalOptions(getKLineGlobalOpts()...)
     kline.SetXAxis(getXData(x)).AddSeries("kline", getKLineData(y))
