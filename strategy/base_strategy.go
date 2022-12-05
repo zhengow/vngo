@@ -1,6 +1,7 @@
 package strategy
 
 import (
+    "fmt"
     "github.com/zhengow/vngo/model"
     "reflect"
 )
@@ -21,11 +22,15 @@ func (s *BaseStrategy) Inject(sI strategyInterface) {
     s.strategyInterface = sI
 }
 
-func (s *BaseStrategy) SetSetting(setting map[string]interface{}) {
-    fields := reflect.ValueOf(&s).Elem()
+func (s *BaseStrategy) SetSetting(strategy interface{}, setting map[string]interface{}) {
+    fields := reflect.ValueOf(strategy).Elem()
     for name, value := range setting {
         filedValue := reflect.ValueOf(value)
-        fields.FieldByName(name).Set(filedValue)
+        if field := fields.FieldByName(name); field.CanSet() {
+            field.Set(filedValue)
+        } else {
+            fmt.Printf("%s can't set\n", name)
+        }
     }
 }
 
@@ -37,7 +42,7 @@ func (s *BaseStrategy) UpdateTrade(trade model.TradeData) {
 
 type Strategy interface {
     Inject(strategyInterface)
-    SetSetting(map[string]interface{})
+    SetSetting(interface{}, map[string]interface{})
     OnBars(map[string]model.Bar)
     UpdateTrade(model.TradeData)
 }

@@ -65,7 +65,7 @@ func (b *BacktestingEngine) SetParameters(
 }
 
 func (b *BacktestingEngine) AddStrategy(strategy strategy.Strategy, setting map[string]interface{}) {
-	strategy.SetSetting(setting)
+	strategy.SetSetting(strategy, setting)
 	b.strategy.Inject(b.orderEngine)
 	b.strategy = strategy
 }
