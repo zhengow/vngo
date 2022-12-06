@@ -1,9 +1,11 @@
 package main
 
 import (
+	_ "embed"
 	"log"
 	"time"
 
+	"github.com/zhengow/vngo/config"
 	"github.com/zhengow/vngo/model"
 
 	"github.com/zhengow/vngo/consts"
@@ -11,6 +13,9 @@ import (
 	"github.com/zhengow/vngo/engine"
 	"github.com/zhengow/vngo/strategy"
 )
+
+//go:embed config/dev.yml
+var content []byte
 
 func getSymbols(symbols []string, exchange consts.Exchange) []*model.Symbol {
 	res := make([]*model.Symbol, 0)
@@ -28,7 +33,8 @@ func main() {
 	endDate := time.Date(2022, 7, 2, 0, 0, 0, 0, time.Local)
 	b.SetParameters(symbols, consts.IntervalEnum.MINUTE, startDate, endDate, nil, nil, 10000)
 	b.AddStrategy(&strategy.MyStrategy{}, nil)
-	database.NewMysql()
+	config, _ := config.NewConfig(content)
+	database.NewMysql(config.MysqlConfig)
 	b.LoadData()
 	b.RunBacktesting()
 	b.CalculateResult(true)

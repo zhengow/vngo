@@ -1,20 +1,12 @@
 package config
 
-import (
-	_ "embed"
-	"fmt"
+import "gopkg.in/yaml.v2"
 
-	"gopkg.in/yaml.v2"
-)
-
-//go:embed dev.yml
-var content []byte
-
-type config struct {
-	Mysql *Mysql `yaml:"mysql"`
+type Config struct {
+	*MysqlConfig `yaml:"mysql"`
 }
 
-type Mysql struct {
+type MysqlConfig struct {
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
 	User     string `yaml:"user"`
@@ -22,11 +14,11 @@ type Mysql struct {
 	Name     string `yaml:"name"`
 }
 
-var Config *config
-
-func init() {
-	err := yaml.Unmarshal(content, &Config)
+func NewConfig(content []byte) (*Config, error) {
+	config := &Config{}
+	err := yaml.Unmarshal(content, config)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
+	return config, nil
 }
