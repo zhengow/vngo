@@ -2,3 +2,4 @@ bin
 config/dev.yml
 .idea
 strategy/my_strategy.go
+main.go
