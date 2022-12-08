@@ -2,7 +2,7 @@ package config
 
 import "gopkg.in/yaml.v2"
 
-type Config struct {
+type config struct {
 	*MysqlConfig `yaml:"mysql"`
 }
 
@@ -14,11 +14,11 @@ type MysqlConfig struct {
 	Name     string `yaml:"name"`
 }
 
-func NewConfig(content []byte) (*Config, error) {
-	config := &Config{}
-	err := yaml.Unmarshal(content, config)
+func NewConfig(content []byte) (*config, error) {
+	_config := &config{}
+	err := yaml.Unmarshal(content, _config)
 	if err != nil {
 		return nil, err
 	}
-	return config, nil
+	return _config, nil
 }
