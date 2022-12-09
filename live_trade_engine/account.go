@@ -13,7 +13,6 @@ type accountEngine struct {
     limitOrderCount   int
     closes            map[model.Symbol]float64
     positions         map[model.Symbol]float64
-    //*positionEngine
 }
 
 func (o *accountEngine) Buy(symbol model.Symbol, price, volume float64) int {
