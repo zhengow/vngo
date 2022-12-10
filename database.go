@@ -20,10 +20,6 @@ type Database interface {
 
 var _db Database // default sqlite
 
-func init() {
-    _db = database.NewSqlite()
-}
-
 func LoadBarData(
     symbol models.Symbol,
     interval types.Interval,
@@ -31,8 +27,11 @@ func LoadBarData(
     end string,
 ) []models.Bar {
     if _db == nil {
-        fmt.Println("db is nil")
-        return nil
+        _db = database.NewSqlite()
+        if _db == nil {
+            fmt.Println("init sqlite error")
+            return nil
+        }
     }
     return _db.LoadBarData(symbol, interval, start, end)
 }
