@@ -12,7 +12,7 @@ type Mysql struct {
 
 var _mysql *Mysql
 
-func NewMysql(mysqlConfig *config.MysqlConfig) {
+func NewMysql(mysqlConfig *MysqlConfig) {
     if _mysql != nil {
         _db = _mysql
     }

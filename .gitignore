@@ -2,5 +2,5 @@ bin
 config/dev.yml
 .idea
 strategy/my_strategy.go
-example/*
-!example/example*
+examples/*
+!examples/example*
