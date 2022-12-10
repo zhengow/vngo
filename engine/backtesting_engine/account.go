@@ -73,7 +73,6 @@ func (o *backtestingAccount) GetBalance() float64 {
         balance += closePrice * position
     }
     return balance
-    return 0
 }
 
 func (o *backtestingAccount) updateCloses(bars map[string]strategy.Bar) {

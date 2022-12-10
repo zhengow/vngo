@@ -1,6 +1,9 @@
 package strategy
 
-import "github.com/zhengow/vngo/types"
+import (
+    "github.com/zhengow/vngo/enum"
+    "github.com/zhengow/vngo/types"
+)
 
 type Order struct {
     Symbol    Symbol
@@ -8,7 +11,8 @@ type Order struct {
     Direction types.Direction
     Price     float64
     Volume    float64
-    //status    Status
+    Status    types.Status
+    Traded    float64
     //datetime strategy.VnTime
 }
 
@@ -26,7 +30,7 @@ func NewOrder(symbol Symbol,
         Direction: direction,
         Price:     price,
         Volume:    volume,
-        //status:    status,
+        Status:    enum.StatusEnum.SUBMITTING,
         //datetime: datetime,
     }
 }

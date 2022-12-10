@@ -11,19 +11,21 @@ import (
 )
 
 type statisticEngine struct {
-    capital  float64
-    dts      []strategy.VnTime
-    trades   map[int]*strategy.TradeData
-    closes   map[strategy.VnTime]map[string]float64
-    balances []float64
-    rates    map[strategy.Symbol]float64
+    capital    float64
+    dts        []strategy.VnTime
+    orders     map[string]*strategy.Order
+    tradeCount int
+    trades     map[int]*strategy.TradeData
+    closes     map[strategy.VnTime]map[string]float64
+    balances   []float64
+    rates      map[strategy.Symbol]float64
 }
 
 func (s *statisticEngine) setCapital(capital float64) {
     s.capital = capital
 }
 
-func (s *statisticEngine) updateClose(bars map[string]strategy.Bar) {
+func (s *statisticEngine) onBars(bars map[string]strategy.Bar) {
     currentCloses := make(map[string]float64)
     currentTime := strategy.VnTime{}
     for symbol, bar := range bars {
@@ -32,6 +34,10 @@ func (s *statisticEngine) updateClose(bars map[string]strategy.Bar) {
     }
     s.closes[currentTime] = currentCloses
     s.dts = append(s.dts, currentTime)
+}
+
+func (s *statisticEngine) updateOrder(order *strategy.Order) {
+    s.orders[order.OrderId] = order
 }
 
 func getTrades(_trades map[int]*strategy.TradeData) map[strategy.VnTime][]*strategy.TradeData {
@@ -143,6 +149,7 @@ func (s *statisticEngine) CalculateResult(output bool) {
 func newStatisticEngine() *statisticEngine {
     return &statisticEngine{
         trades: make(map[int]*strategy.TradeData),
+        orders: make(map[string]*strategy.Order),
         closes: make(map[strategy.VnTime]map[string]float64),
     }
 }

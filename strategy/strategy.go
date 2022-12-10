@@ -46,11 +46,15 @@ func (s *BaseStrategy) OnBars(bars map[string]Bar) {
 func (s *BaseStrategy) UpdateTrade(trade TradeData) {
 }
 
+func (s *BaseStrategy) UpdateOrder(order *Order) {
+}
+
 type Strategy interface {
     Inject(accountInterface)
     SetSetting(interface{}, map[string]interface{})
     OnBars(map[string]Bar)
     UpdateTrade(TradeData)
+    UpdateOrder(*Order)
 }
 
 //type Bar interface {
