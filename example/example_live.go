@@ -34,5 +34,5 @@ func main() {
 	b.SetParameters(symbols, consts.IntervalEnum.MINUTE)
 	b.AddStrategy(&MyStrategy{}, nil)
 	b.LoadData()
-	// b.Run()
+	b.Run()
 }

@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -46,4 +47,23 @@ func (f *binanceFutureClient) LoadBarData(symbol *model.Symbol) ([]model.Bar, er
 		}
 	}
 	return bars, nil
+}
+
+func (f *binanceFutureClient) WebSocketKLine(symbols []*model.Symbol) {
+	wsKlineHandler := func(event *futures.WsKlineEvent) {
+		fmt.Println(event)
+	}
+	errHandler := func(err error) {
+		fmt.Println(err)
+	}
+	combined := make(map[string]string)
+	for _, symbol := range symbols {
+		combined[symbol.Symbol] = string(symbol.Interval)
+	}
+	doneC, _, err := futures.WsCombinedKlineServe(combined, wsKlineHandler, errHandler)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	<-doneC
 }

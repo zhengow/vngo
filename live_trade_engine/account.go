@@ -1,6 +1,8 @@
 package live_trade_engine
 
 import (
+	"fmt"
+
 	"github.com/zhengow/vngo/consts"
 	"github.com/zhengow/vngo/model"
 	"github.com/zhengow/vngo/utils"
@@ -26,6 +28,7 @@ func (o *accountEngine) Sell(symbol model.Symbol, price, volume float64) int {
 
 func (o *accountEngine) sendOrder(symbol model.Symbol, direction consts.Direction, price, volume float64) int {
 	if !o.start {
+		fmt.Println("trade")
 		return -1
 	}
 	priceTick := 5

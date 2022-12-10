@@ -58,7 +58,6 @@ func (b *LiveTradeEngine) LoadData() {
 	defer utils.TimeCost("load data")()
 	for _, symbol := range b.symbols {
 		bars, err := b.gI.LoadBarData(symbol)
-		fmt.Println(bars)
 		if err != nil {
 			log.Fatal(err)
 			panic(err)
@@ -97,6 +96,7 @@ func (b *LiveTradeEngine) preRun() {
 }
 
 func (b *LiveTradeEngine) Run() {
+	b.gI.WebSocketKLine(b.symbols)
 	// b.strategy.
 	// dts = make([]time.Time, b._dts.Cardinality())
 	// cnt := 0
