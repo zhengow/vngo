@@ -27,7 +27,6 @@ func NewMysql(mysqlConfig *config.MysqlConfig) {
 	// dbName := mysqlConfig.Name
 	// dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, port, dbName)
 	dsn := mysqlConfig.GetDsn()
-	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)

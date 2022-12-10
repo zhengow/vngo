@@ -1,5 +1,7 @@
 package gateway
 
-type GatewayInterface interface {
+import "github.com/zhengow/vngo/model"
 
+type GatewayInterface interface {
+	LoadBarData(*model.Symbol) ([]model.Bar, error)
 }

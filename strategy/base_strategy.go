@@ -23,7 +23,6 @@ type marketInterface interface {
 type BaseStrategy struct {
     accountInterface
     marketInterface
-    activeOrderIds []int
 }
 
 func (s *BaseStrategy) Inject(aI accountInterface) {

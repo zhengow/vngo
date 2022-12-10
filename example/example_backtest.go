@@ -16,10 +16,10 @@ import (
 //go:embed dev.yml
 var content []byte
 
-func getSymbols(symbols []string, exchange consts.Exchange) []*model.Symbol {
+func getSymbols(symbols []string, exchange consts.Exchange, interval consts.Interval) []*model.Symbol {
 	res := make([]*model.Symbol, 0)
 	for _, symbol := range symbols {
-		res = append(res, model.NewSymbol(symbol, exchange))
+		res = append(res, model.NewSymbol(symbol, exchange, interval))
 	}
 	return res
 }
@@ -27,7 +27,7 @@ func getSymbols(symbols []string, exchange consts.Exchange) []*model.Symbol {
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime)
 	b := backtesting_engine.NewEngine()
-	symbols := getSymbols([]string{"BTCDOMUSDT"}, consts.ExchangeEnum.BINANCE)
+	symbols := getSymbols([]string{"BTCDOMUSDT"}, consts.ExchangeEnum.BINANCE, consts.IntervalEnum.MINUTE)
 	startDate := time.Date(2022, 7, 1, 0, 0, 0, 0, time.Local)
 	endDate := time.Date(2022, 7, 2, 0, 0, 0, 0, time.Local)
 	b.SetParameters(symbols, consts.IntervalEnum.MINUTE, startDate, endDate, nil, nil, 10000)

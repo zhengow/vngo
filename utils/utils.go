@@ -45,3 +45,29 @@ func Variance(v []float64) float64 {
 func Std(v []float64) float64 {
 	return math.Sqrt(Variance(v))
 }
+
+func ParseBarData(open, high, low, close, volume string) (float64, float64, float64, float64, float64, error) {
+	var err error
+	var openValue, highValue, lowValue, closeValue, volumeValue float64
+	openValue, err = strconv.ParseFloat(open, 64)
+	if err != nil {
+		return 0, 0, 0, 0, 0, err
+	}
+	highValue, err = strconv.ParseFloat(high, 64)
+	if err != nil {
+		return 0, 0, 0, 0, 0, err
+	}
+	lowValue, err = strconv.ParseFloat(low, 64)
+	if err != nil {
+		return 0, 0, 0, 0, 0, err
+	}
+	closeValue, err = strconv.ParseFloat(close, 64)
+	if err != nil {
+		return 0, 0, 0, 0, 0, err
+	}
+	volumeValue, err = strconv.ParseFloat(volume, 64)
+	if err != nil {
+		return 0, 0, 0, 0, 0, err
+	}
+	return openValue, highValue, lowValue, closeValue, volumeValue, nil
+}
