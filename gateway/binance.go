@@ -3,7 +3,7 @@ package gateway
 import (
     "context"
     "fmt"
-    "github.com/zhengow/vngo"
+    "github.com/zhengow/vngo/models"
     "github.com/zhengow/vngo/utils"
     "log"
     "time"
@@ -23,20 +23,20 @@ func NewFutureClient(apiKey, secretKey string) *binanceFutureClient {
     }
 }
 
-func (f *binanceFutureClient) LoadBarData(symbol *vngo.Symbol) ([]vngo.Bar, error) {
+func (f *binanceFutureClient) LoadBarData(symbol *models.Symbol) ([]models.Bar, error) {
     res, err := f.client.NewKlinesService().Symbol(symbol.Name).Interval(string(symbol.Interval)).Do(context.Background())
     if err != nil {
         log.Fatalf("load bar data err: %v", err)
     }
-    bars := make([]vngo.Bar, len(res))
+    bars := make([]models.Bar, len(res))
     for i, v := range res {
         openValue, highValue, lowValue, closeValue, volumeValue, err := utils.ParseBarData(v.Open, v.High, v.Low, v.Close, v.Volume)
         if err != nil {
             return nil, err
         }
-        bars[i] = vngo.Bar{
+        bars[i] = models.Bar{
             Symbol:       *symbol,
-            Datetime:     vngo.NewDatabaseTime(time.UnixMilli(v.OpenTime)),
+            Datetime:     *models.NewVnTime(time.UnixMilli(v.OpenTime)),
             Interval:     symbol.Interval,
             Volume:       volumeValue,
             OpenInterest: 0,
@@ -49,7 +49,7 @@ func (f *binanceFutureClient) LoadBarData(symbol *vngo.Symbol) ([]vngo.Bar, erro
     return bars, nil
 }
 
-func (f *binanceFutureClient) WebSocketKLine(symbols []*vngo.Symbol) {
+func (f *binanceFutureClient) WebSocketKLine(symbols []*models.Symbol) {
     wsKlineHandler := func(event *futures.WsKlineEvent) {
         fmt.Println(event)
     }

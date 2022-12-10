@@ -15,7 +15,7 @@ package main
 ////go:embed dev.yml
 //var content []byte
 //
-//func getSymbols(symbols []string, exchange vngo.Exchange, interval vngo.Interval) []*vngo.Name {
+//func getSymbols(symbols []string, exchange vngo.Exchange, interval types.Interval) []*vngo.Name {
 //   res := make([]*vngo.Name, 0)
 //   for _, symbol := range symbols {
 //       res = append(res, vngo.NewSymbol(symbol, exchange, interval))
@@ -29,8 +29,8 @@ package main
 //   database.NewMysql(_config.MysqlConfig)
 //   client := gateway.NewFutureClient(_config.Apikey, _config.SecretKey)
 //   b := live_trade_engine.NewEngine(client)
-//   symbols := getSymbols([]string{"BTCDOMUSDT"}, vngo.ExchangeEnum.BINANCE, vngo.IntervalEnum.MINUTE)
-//   b.SetParameters(symbols, vngo.IntervalEnum.MINUTE)
+//   symbols := getSymbols([]string{"BTCDOMUSDT"}, vngo.ExchangeEnum.BINANCE, types.IntervalEnum.MINUTE)
+//   b.SetParameters(symbols, types.IntervalEnum.MINUTE)
 //   b.AddStrategy(&MyStrategy{}, nil)
 //   b.LoadData()
 //   b.Run()

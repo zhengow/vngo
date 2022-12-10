@@ -1,17 +1,14 @@
-package vngo
+package enum
 
-type Interval string
-type Exchange string
-type Direction string
-type Status string
+import "github.com/zhengow/vngo/types"
 
 type interval struct {
-    MINUTE      Interval
-    HOUR        Interval
-    DAILY       Interval
-    WEEKLY      Interval
-    TICK        Interval
-    TRANSACTION Interval
+    MINUTE      types.Interval
+    HOUR        types.Interval
+    DAILY       types.Interval
+    WEEKLY      types.Interval
+    TICK        types.Interval
+    TRANSACTION types.Interval
 }
 
 var IntervalEnum = interval{
@@ -22,7 +19,7 @@ var IntervalEnum = interval{
 }
 
 type exchange struct {
-    BINANCE Exchange
+    BINANCE types.Exchange
 }
 
 var ExchangeEnum = exchange{
@@ -30,8 +27,8 @@ var ExchangeEnum = exchange{
 }
 
 type direction struct {
-    LONG  Direction
-    SHORT Direction
+    LONG  types.Direction
+    SHORT types.Direction
 }
 
 var DirectionEnum = direction{
@@ -40,12 +37,12 @@ var DirectionEnum = direction{
 }
 
 type status struct {
-    SUBMITTING Status
-    NOTTRADED  Status
-    PARTTRADED Status
-    ALLTRADED  Status
-    CANCELLED  Status
-    REJECTED   Status
+    SUBMITTING types.Status
+    NOTTRADED  types.Status
+    PARTTRADED types.Status
+    ALLTRADED  types.Status
+    CANCELLED  types.Status
+    REJECTED   types.Status
 }
 
 var StatusEnum = status{
@@ -56,5 +53,3 @@ var StatusEnum = status{
     CANCELLED:  "已撤销",
     REJECTED:   "拒单",
 }
-
-const DateFormat = "2006-01-02 15:04:05"

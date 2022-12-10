@@ -2,27 +2,29 @@ package engine
 
 import (
     "fmt"
+    mapset "github.com/deckarep/golang-set"
     "github.com/zhengow/vngo"
+    "github.com/zhengow/vngo/chart"
+    "github.com/zhengow/vngo/enum"
+    "github.com/zhengow/vngo/models"
+    "github.com/zhengow/vngo/types"
     "github.com/zhengow/vngo/utils"
     "math"
     "sort"
     "time"
-
-    mapset "github.com/deckarep/golang-set"
-    "github.com/zhengow/vngo/chart"
 )
 
 type BacktestingEngine struct {
-    symbols     []*vngo.Symbol
-    interval    vngo.Interval
-    start       *time.Time
-    end         *time.Time
-    rates       map[vngo.Symbol]float64
+    symbols     []*models.Symbol
+    interval    types.Interval
+    start       *models.VnTime
+    end         *models.VnTime
+    rates       map[models.Symbol]float64
     strategy    vngo.Strategy
     _dts        mapset.Set
-    dts         []time.Time
-    historyData map[string]map[time.Time]vngo.Bar
-    datetime    *time.Time
+    dts         []models.VnTime
+    historyData map[string]map[models.VnTime]models.Bar
+    datetime    *models.VnTime
     tradeCount  int
     *accountEngine
     *statisticEngine
@@ -36,7 +38,7 @@ func NewBacktestingEngine() *BacktestingEngine {
     }
     _BacktestingEngine = &BacktestingEngine{
         _dts:            mapset.NewSet(),
-        historyData:     make(map[string]map[time.Time]vngo.Bar),
+        historyData:     make(map[string]map[models.VnTime]models.Bar),
         accountEngine:   newOrderEngine(),
         statisticEngine: newStatisticEngine(),
     }
@@ -44,18 +46,18 @@ func NewBacktestingEngine() *BacktestingEngine {
 }
 
 func (b *BacktestingEngine) SetParameters(
-    symbols []*vngo.Symbol,
-    interval vngo.Interval,
+    symbols []*models.Symbol,
+    interval types.Interval,
     start,
     end time.Time,
-    rates map[vngo.Symbol]float64,
+    rates map[models.Symbol]float64,
     priceTicks map[string]int,
     capital float64,
 ) {
     b.symbols = symbols
     b.interval = interval
-    b.start = &start
-    b.end = &end
+    b.start = models.NewVnTime(start)
+    b.end = models.NewVnTime(end)
     b.setRates(rates)
     b.setPriceTicks(priceTicks)
     b.setCapital(capital)
@@ -74,15 +76,15 @@ func (b *BacktestingEngine) LoadData() {
         fmt.Println("please set start && end time")
         return
     }
-    start := b.start.Format(vngo.DateFormat)
-    end := b.end.Format(vngo.DateFormat)
+    start := b.start.Format()
+    end := b.end.Format()
     for _, symbol := range b.symbols {
         if b.historyData[symbol.Name] == nil {
-            b.historyData[symbol.Name] = make(map[time.Time]vngo.Bar)
+            b.historyData[symbol.Name] = make(map[models.VnTime]models.Bar)
         }
         bars := vngo.LoadBarData(*symbol, b.interval, start, end)
         for _, bar := range bars {
-            _time := bar.Datetime.Time
+            _time := bar.Datetime
             b._dts.Add(_time)
             b.historyData[symbol.Name][_time] = bar
         }
@@ -91,15 +93,15 @@ func (b *BacktestingEngine) LoadData() {
 }
 
 func (b *BacktestingEngine) RunBacktesting() {
-    b.dts = make([]time.Time, b._dts.Cardinality())
+    b.dts = make([]models.VnTime, b._dts.Cardinality())
     cnt := 0
     b._dts.Each(func(ele interface{}) bool {
-        b.dts[cnt] = ele.(time.Time)
+        b.dts[cnt] = ele.(models.VnTime)
         cnt++
         return false
     })
     sort.Slice(b.dts, func(i, j int) bool {
-        return b.dts[i].Before(b.dts[j])
+        return b.dts[i].Time.Before(b.dts[j].Time)
     })
 
     for _, dt := range b.dts {
@@ -107,9 +109,9 @@ func (b *BacktestingEngine) RunBacktesting() {
     }
 }
 
-func (b *BacktestingEngine) newBars(dt time.Time) {
+func (b *BacktestingEngine) newBars(dt models.VnTime) {
     b.datetime = &dt
-    bars := make(map[string]vngo.Bar)
+    bars := make(map[string]models.Bar)
     for _, symbol := range b.symbols {
         bars[symbol.Name] = b.historyData[symbol.Name][dt]
     }
@@ -119,7 +121,7 @@ func (b *BacktestingEngine) newBars(dt time.Time) {
     b.updateClose(bars)
 }
 
-func (b *BacktestingEngine) crossLimitOrder(bars map[string]vngo.Bar) {
+func (b *BacktestingEngine) crossLimitOrder(bars map[string]models.Bar) {
     for _, order := range b.accountEngine.activeLimitOrders {
         bar := bars[order.Symbol.Name]
         longCrossPrice := bar.LowPrice
@@ -127,8 +129,8 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]vngo.Bar) {
         longBestPrice := bar.OpenPrice
         shortBestPrice := bar.OpenPrice
 
-        longCross := order.Direction == vngo.DirectionEnum.LONG && order.Price >= longCrossPrice && longCrossPrice > 0
-        shortCross := order.Direction == vngo.DirectionEnum.SHORT && order.Price <= shortCrossPrice && shortCrossPrice > 0
+        longCross := order.Direction == enum.DirectionEnum.LONG && order.Price >= longCrossPrice && longCrossPrice > 0
+        shortCross := order.Direction == enum.DirectionEnum.SHORT && order.Price <= shortCrossPrice && shortCrossPrice > 0
 
         if !longCross && !shortCross {
             continue
@@ -145,7 +147,7 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]vngo.Bar) {
             tradePrice = math.Max(order.Price, shortBestPrice)
         }
 
-        tradeData := vngo.NewTradeData(
+        tradeData := models.NewTradeData(
             order.Symbol,
             order.OrderId,
             b.tradeCount,
@@ -156,7 +158,7 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]vngo.Bar) {
         )
 
         incrementPos := order.Volume
-        if order.Direction == vngo.DirectionEnum.SHORT {
+        if order.Direction == enum.DirectionEnum.SHORT {
             incrementPos = -order.Volume
         }
         b.accountEngine.updatePositions(order.Symbol, incrementPos, tradePrice)
@@ -171,11 +173,11 @@ func (b *BacktestingEngine) ShowPNLChart() {
 
 func (b *BacktestingEngine) ShowKLineChart() {
     for _, symbol := range b.symbols {
-        bars := make([]vngo.Bar, len(b.dts))
+        bars := make([]models.Bar, len(b.dts))
         for idx, dt := range b.dts {
             bars[idx] = b.historyData[symbol.Name][dt]
         }
-        trades := make([]*vngo.TradeData, 0)
+        trades := make([]*models.TradeData, 0)
         for _, trade := range b.trades {
             if trade.Symbol.Name == symbol.Name {
                 trades = append(trades, trade)
