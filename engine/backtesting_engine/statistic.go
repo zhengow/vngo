@@ -92,10 +92,7 @@ func (s *statisticEngine) CalculateResult(output bool) {
                     volume *= -1
                 }
                 currentPos[symbol] += volume
-                rate := 0.0
-                if r, ok := s.rates[_trade.Symbol]; ok {
-                    rate = r
-                }
+                rate := s.rates[_trade.Symbol]
                 turnover := _trade.Price * _trade.Volume
                 fee := rate * _trade.Price * _trade.Volume
                 totalCommission += fee
@@ -151,31 +148,10 @@ func newStatisticEngine() *statisticEngine {
         trades: make(map[int]*strategy.TradeData),
         orders: make(map[string]*strategy.Order),
         closes: make(map[strategy.VnTime]map[string]float64),
+        rates:  make(map[strategy.Symbol]float64),
     }
 }
 
-func (s *statisticEngine) setRates(rates map[strategy.Symbol]float64) {
-    s.rates = rates
+func (s *statisticEngine) setRate(symbol strategy.Symbol, rate float64) {
+    s.rates[symbol] = rate
 }
-
-//
-//type eachResult struct {
-//    date strategy.VnTime
-//    closePrices map[string]float64
-//    preCloses map[string]float64
-//    startPoses map[string]float64
-//    endPoses map[string]float64
-//    contract_results Dict[str, ContractDailyResult] = {}
-//
-//    for vt_symbol, closePrice in closePrices.items()
-//    contract_results[vt_symbol] = ContractDailyResult(result_date, closePrice)
-//
-//    tradeCount int = 0
-//    turnover float = 0
-//    commission float = 0
-//    slippage float = 0
-//    tradingPnl float = 0
-//    holdingPnl float = 0
-//    totalPnl float = 0
-//    netPnl float = 0
-//}

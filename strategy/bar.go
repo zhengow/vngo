@@ -2,14 +2,12 @@ package strategy
 
 import (
     "fmt"
-    "github.com/zhengow/vngo/types"
     "time"
 )
 
 type Bar struct {
     Symbol
     Datetime     VnTime `gorm:"type:datetime"`
-    Interval     types.Interval
     Volume       float64
     OpenInterest float64
     OpenPrice    float64

@@ -44,7 +44,7 @@ func (b *BacktestingEngine) AddSymbol(name string, rate float64, exchange types.
         Name:     name,
         Interval: interval,
     }
-    symbol.SetRate(rate)
+    b.setRate(symbol, rate)
     b.symbols = append(b.symbols, symbol)
     return b
 }

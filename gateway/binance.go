@@ -37,7 +37,6 @@ func (f *binanceFutureClient) LoadBarData(symbol *strategy.Symbol) ([]strategy.B
         bars[i] = strategy.Bar{
             Symbol:       *symbol,
             Datetime:     *strategy.NewVnTime(time.UnixMilli(v.OpenTime)),
-            Interval:     symbol.Interval,
             Volume:       volumeValue,
             OpenInterest: 0,
             OpenPrice:    openValue,
