@@ -1,25 +1,21 @@
-package model
-
-import (
-    "github.com/zhengow/vngo/consts"
-)
+package vngo
 
 type Order struct {
     Symbol    Symbol
     OrderId   int
-    Direction consts.Direction
+    Direction Direction
     Price     float64
     Volume    float64
-    //status    consts.Status
+    //status    Status
     //datetime time.Time
 }
 
 func NewOrder(symbol Symbol,
     orderId int,
-    direction consts.Direction,
+    direction Direction,
     price float64,
     volume float64,
-//status consts.Status,
+//status Status,
 //    datetime time.Time
 ) *Order {
     return &Order{

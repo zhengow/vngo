@@ -1,52 +1,54 @@
 package backtesting_engine
 
 import (
+    "fmt"
+    "github.com/zhengow/vngo"
     "log"
     "math"
     "time"
-
-    "github.com/zhengow/vngo/consts"
-    "github.com/zhengow/vngo/model"
-    "github.com/zhengow/vngo/utils"
 )
 
 type statisticEngine struct {
     capital  float64
     dts      []time.Time
-    trades   map[int]*model.TradeData
+    trades   map[int]*vngo.TradeData
     closes   map[time.Time]map[string]float64
     balances []float64
-    rates    map[model.Symbol]float64
+    rates    map[vngo.Symbol]float64
 }
 
 func (s *statisticEngine) setCapital(capital float64) {
     s.capital = capital
 }
 
-func (s *statisticEngine) updateClose(bars map[string]model.Bar) {
+func (s *statisticEngine) updateClose(bars map[string]vngo.Bar) {
     currentCloses := make(map[string]float64)
     currentTime := time.Time{}
     for symbol, bar := range bars {
         currentCloses[symbol] = bar.ClosePrice
-        currentTime = time.Time(bar.Datetime)
+        currentTime = bar.Datetime.Time
     }
     s.closes[currentTime] = currentCloses
     s.dts = append(s.dts, currentTime)
 }
 
-func getTrades(_trades map[int]*model.TradeData) map[time.Time][]*model.TradeData {
-    trades := make(map[time.Time][]*model.TradeData)
+func getTrades(_trades map[int]*vngo.TradeData) map[time.Time][]*vngo.TradeData {
+    trades := make(map[time.Time][]*vngo.TradeData)
     for _, trade := range _trades {
         if dtTrades, ok := trades[trade.Datetime]; ok {
             dtTrades = append(dtTrades, trade)
         } else {
-            trades[trade.Datetime] = []*model.TradeData{trade}
+            trades[trade.Datetime] = []*vngo.TradeData{trade}
         }
     }
     return trades
 }
 
 func (s *statisticEngine) CalculateResult(output bool) {
+    if len(s.dts) == 0 {
+        fmt.Println("no trade")
+        return
+    }
     trades := getTrades(s.trades)
     currentPos := make(map[string]float64)
 
@@ -78,7 +80,7 @@ func (s *statisticEngine) CalculateResult(output bool) {
             for _, _trade := range dtTrades {
                 symbol := _trade.Symbol.Symbol
                 volume := _trade.Volume
-                if _trade.Direction == consts.DirectionEnum.SHORT {
+                if _trade.Direction == vngo.DirectionEnum.SHORT {
                     volume *= -1
                 }
                 currentPos[symbol] += volume
@@ -106,16 +108,16 @@ func (s *statisticEngine) CalculateResult(output bool) {
         totalMinutes := endDate.Sub(startDate).Minutes()
         totalRetAmount := s.balances[len(s.balances)-1] - s.balances[0]
         totalRetPercent := totalRetAmount / s.balances[0]
-        annualRet := totalRetPercent / totalMinutes * utils.YearMinutes()
+        annualRet := totalRetPercent / totalMinutes * vngo.YearMinutes()
         dailyTradeCount := float64(totalTradeCount) / totalMinutes * (time.Hour.Minutes() * 24)
         dailyRetAmount := totalRetAmount / totalMinutes * (time.Hour.Minutes() * 24)
         dailyRetPercent := totalRetPercent / totalMinutes * (time.Hour.Minutes() * 24)
         //fmt.Println(retPercents)
-        dailyReturnStd = utils.Std(retPercents) * math.Sqrt(time.Hour.Minutes()*24)
+        dailyReturnStd = vngo.Std(retPercents) * math.Sqrt(time.Hour.Minutes()*24)
         sharpeRatio = dailyRetPercent / dailyReturnStd * math.Sqrt(365) // 算出每日夏普
         // returnDropdownRatio = -annualRet / maxDrawdownPercent
-        log.Printf("%-15s\t%-s\n", "首个交易日：", startDate.Format(consts.DateFormat))
-        log.Printf("%-15s\t%-s\n", "最后交易日：", endDate.Format(consts.DateFormat))
+        log.Printf("%-15s\t%-s\n", "首个交易日：", startDate.Format(vngo.DateFormat))
+        log.Printf("%-15s\t%-s\n", "最后交易日：", endDate.Format(vngo.DateFormat))
         log.Printf("%-15s\t%-.2f\n", "起始资金：", s.balances[0])
         log.Printf("%-15s\t%-.2f\n", "结束资金：", s.balances[len(s.balances)-1])
         log.Printf("%-15s\t%-.2f\n", "最高资金：", maxPNL)
@@ -138,12 +140,12 @@ func (s *statisticEngine) CalculateResult(output bool) {
 
 func newStatisticEngine() *statisticEngine {
     return &statisticEngine{
-        trades: make(map[int]*model.TradeData),
+        trades: make(map[int]*vngo.TradeData),
         closes: make(map[time.Time]map[string]float64),
     }
 }
 
-func (s *statisticEngine) setRates(rates map[model.Symbol]float64) {
+func (s *statisticEngine) setRates(rates map[vngo.Symbol]float64) {
     s.rates = rates
 }
 

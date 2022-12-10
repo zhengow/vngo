@@ -1,17 +1,16 @@
-package strategy
+package vngo
 
 import (
     "fmt"
-    "github.com/zhengow/vngo/model"
     "reflect"
     "time"
 )
 
 type accountInterface interface {
-    Buy(symbol model.Symbol, price, volume float64) int
-    Sell(symbol model.Symbol, price, volume float64) int
+    Buy(symbol Symbol, price, volume float64) int
+    Sell(symbol Symbol, price, volume float64) int
     CancelAll()
-    GetPositions() map[model.Symbol]float64
+    GetPositions() map[Symbol]float64
     GetCash() float64
     GetBalance() float64
 }
@@ -41,15 +40,15 @@ func (s *BaseStrategy) SetSetting(strategy interface{}, setting map[string]inter
     }
 }
 
-func (s *BaseStrategy) OnBars(bars map[string]model.Bar) {
+func (s *BaseStrategy) OnBars(bars map[string]Bar) {
 }
 
-func (s *BaseStrategy) UpdateTrade(trade model.TradeData) {
+func (s *BaseStrategy) UpdateTrade(trade TradeData) {
 }
 
 type Strategy interface {
     Inject(accountInterface)
     SetSetting(interface{}, map[string]interface{})
-    OnBars(map[string]model.Bar)
-    UpdateTrade(model.TradeData)
+    OnBars(map[string]Bar)
+    UpdateTrade(TradeData)
 }

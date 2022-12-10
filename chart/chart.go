@@ -4,9 +4,7 @@ import (
     "fmt"
     "github.com/go-echarts/go-echarts/v2/charts"
     "github.com/go-echarts/go-echarts/v2/opts"
-    "github.com/zhengow/vngo/consts"
-    "github.com/zhengow/vngo/model"
-    "github.com/zhengow/vngo/utils"
+    "github.com/zhengow/vngo"
     "io/ioutil"
     "net/http"
     "os"
@@ -20,7 +18,7 @@ const SELLICON = "image://data:image/svg+xml;base64,PHN2ZyB0PSIxNjcwMTI1NTg0NDM3
 func getXData(x []time.Time) []string {
     data := make([]string, len(x))
     for idx, _data := range x {
-        data[idx] = _data.Format(consts.DateFormat)
+        data[idx] = _data.Format(vngo.DateFormat)
     }
     return data
 }
@@ -29,7 +27,7 @@ func getYData(y []float64) []opts.LineData {
     lineData := make([]opts.LineData, len(y))
     for idx, data := range y {
         lineData[idx] = opts.LineData{
-            Value:  utils.RoundTo(data, 2),
+            Value:  vngo.RoundTo(data, 2),
             Symbol: "none",
         }
     }
@@ -90,7 +88,7 @@ func ChartPNL(x []time.Time, y []float64, _filename string) {
     }
 }
 
-func getKLineData(bars []model.Bar) []opts.KlineData {
+func getKLineData(bars []vngo.Bar) []opts.KlineData {
     klineData := make([]opts.KlineData, len(bars))
     for idx, bar := range bars {
         klineData[idx] = opts.KlineData{
@@ -134,7 +132,7 @@ func getKLineGlobalOpts() []charts.GlobalOpts {
     return []charts.GlobalOpts{titleOpts, initOpts, toolBoxOpts, toolTipOpts, dataZoomOpts, yAxisOpts}
 }
 
-func getTradesDataPoints(trades []*model.TradeData) []opts.ScatterData {
+func getTradesDataPoints(trades []*vngo.TradeData) []opts.ScatterData {
     scatterData := make([]opts.ScatterData, len(trades))
     for idx, trade := range trades {
         icon := BUYICON
@@ -146,7 +144,7 @@ func getTradesDataPoints(trades []*model.TradeData) []opts.ScatterData {
         scatterData[idx] = opts.ScatterData{
             Name:       trade.Symbol.Symbol,
             Symbol:     icon,
-            Value:      [2]interface{}{trade.Datetime.Format(consts.DateFormat), trade.Price},
+            Value:      [2]interface{}{trade.Datetime.Format(vngo.DateFormat), trade.Price},
             SymbolSize: 50,
             //SymbolRotate: rotate,
         }
@@ -154,7 +152,7 @@ func getTradesDataPoints(trades []*model.TradeData) []opts.ScatterData {
     return scatterData
 }
 
-func chartTradeScatter(x []time.Time, trades []*model.TradeData) *charts.Scatter {
+func chartTradeScatter(x []time.Time, trades []*vngo.TradeData) *charts.Scatter {
     if len(trades) == 0 {
         return nil
     }
@@ -167,7 +165,7 @@ func chartTradeScatter(x []time.Time, trades []*model.TradeData) *charts.Scatter
     return scatter
 }
 
-func ChartKLines(x []time.Time, y []model.Bar, trades []*model.TradeData, _filename string) {
+func ChartKLines(x []time.Time, y []vngo.Bar, trades []*vngo.TradeData, _filename string) {
     kline := charts.NewKLine()
     kline.SetGlobalOptions(getKLineGlobalOpts()...)
     kline.SetXAxis(getXData(x)).AddSeries("kline", getKLineData(y))

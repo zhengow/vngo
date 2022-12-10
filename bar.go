@@ -1,16 +1,13 @@
-package model
+package vngo
 
 import (
     "fmt"
-
-    "github.com/zhengow/vngo/consts"
-    "github.com/zhengow/vngo/utils"
 )
 
 type Bar struct {
     Symbol
-    Datetime     utils.DatabaseTime `gorm:"type:datetime"`
-    Interval     consts.Interval
+    Datetime     DatabaseTime `gorm:"type:datetime"`
+    Interval     Interval
     Volume       float64
     OpenInterest float64
     OpenPrice    float64

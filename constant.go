@@ -1,4 +1,4 @@
-package consts
+package vngo
 
 type Interval string
 type Exchange string

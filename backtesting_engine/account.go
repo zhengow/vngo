@@ -1,54 +1,52 @@
 package backtesting_engine
 
 import (
-    "github.com/zhengow/vngo/consts"
-    "github.com/zhengow/vngo/model"
-    "github.com/zhengow/vngo/utils"
+    "github.com/zhengow/vngo"
 )
 
 type accountEngine struct {
     priceTicks        map[string]int
     cash              float64
-    activeLimitOrders map[int]*model.Order
+    activeLimitOrders map[int]*vngo.Order
     limitOrderCount   int
-    closes            map[model.Symbol]float64
-    positions         map[model.Symbol]float64
+    closes            map[vngo.Symbol]float64
+    positions         map[vngo.Symbol]float64
     //*positionEngine
 }
 
-func (o *accountEngine) Buy(symbol model.Symbol, price, volume float64) int {
-    return o.sendOrder(symbol, consts.DirectionEnum.LONG, price, volume)
+func (o *accountEngine) Buy(symbol vngo.Symbol, price, volume float64) int {
+    return o.sendOrder(symbol, vngo.DirectionEnum.LONG, price, volume)
 }
 
-func (o *accountEngine) Sell(symbol model.Symbol, price, volume float64) int {
-    return o.sendOrder(symbol, consts.DirectionEnum.SHORT, price, volume)
+func (o *accountEngine) Sell(symbol vngo.Symbol, price, volume float64) int {
+    return o.sendOrder(symbol, vngo.DirectionEnum.SHORT, price, volume)
 }
 
-func (o *accountEngine) sendOrder(symbol model.Symbol, direction consts.Direction, price, volume float64) int {
+func (o *accountEngine) sendOrder(symbol vngo.Symbol, direction vngo.Direction, price, volume float64) int {
     priceTick := 5
     if val, ok := o.priceTicks[symbol.Symbol]; ok {
         priceTick = val
     }
-    price = utils.RoundTo(price, priceTick)
+    price = vngo.RoundTo(price, priceTick)
     o.limitOrderCount++
-    order := model.NewOrder(symbol, o.limitOrderCount, direction, price, volume)
+    order := vngo.NewOrder(symbol, o.limitOrderCount, direction, price, volume)
     o.activeLimitOrders[o.limitOrderCount] = order
     return o.limitOrderCount
 }
 
 func (o *accountEngine) CancelAll() {
-    o.activeLimitOrders = make(map[int]*model.Order)
+    o.activeLimitOrders = make(map[int]*vngo.Order)
 }
 
 func (o *accountEngine) startTrading() {
     //o.trading = true
 }
 
-func (o *accountEngine) GetPositions() map[model.Symbol]float64 {
+func (o *accountEngine) GetPositions() map[vngo.Symbol]float64 {
     return o.positions
 }
 
-func (o *accountEngine) updatePositions(symbol model.Symbol, incrementPos, price float64) {
+func (o *accountEngine) updatePositions(symbol vngo.Symbol, incrementPos, price float64) {
     o.positions[symbol] += incrementPos
     o.cash -= incrementPos * price
 }
@@ -74,7 +72,7 @@ func (o *accountEngine) GetBalance() float64 {
     return balance
 }
 
-func (o *accountEngine) updateCloses(bars map[string]model.Bar) {
+func (o *accountEngine) updateCloses(bars map[string]vngo.Bar) {
     for _, bar := range bars {
         o.closes[bar.Symbol] = bar.ClosePrice
     }
@@ -82,8 +80,8 @@ func (o *accountEngine) updateCloses(bars map[string]model.Bar) {
 
 func newOrderEngine() *accountEngine {
     return &accountEngine{
-        activeLimitOrders: make(map[int]*model.Order),
-        positions:         make(map[model.Symbol]float64),
-        closes:            make(map[model.Symbol]float64),
+        activeLimitOrders: make(map[int]*vngo.Order),
+        positions:         make(map[vngo.Symbol]float64),
+        closes:            make(map[vngo.Symbol]float64),
     }
 }

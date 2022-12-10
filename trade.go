@@ -1,7 +1,6 @@
-package model
+package vngo
 
 import (
-    "github.com/zhengow/vngo/consts"
     "time"
 )
 
@@ -9,7 +8,7 @@ type TradeData struct {
     Symbol    Symbol
     OrderId   int
     TradeId   int
-    Direction consts.Direction
+    Direction Direction
     Price     float64
     Volume    float64
     Datetime  time.Time
@@ -18,7 +17,7 @@ type TradeData struct {
 func NewTradeData(symbol Symbol,
     orderId int,
     tradeId int,
-    direction consts.Direction,
+    direction Direction,
     price float64,
     volume float64,
     datetime time.Time,
@@ -35,9 +34,9 @@ func NewTradeData(symbol Symbol,
 }
 
 func (t *TradeData) IsBuy() bool {
-    return t.Direction == consts.DirectionEnum.LONG
+    return t.Direction == DirectionEnum.LONG
 }
 
 func (t *TradeData) IsSell() bool {
-    return t.Direction == consts.DirectionEnum.SHORT
+    return t.Direction == DirectionEnum.SHORT
 }
