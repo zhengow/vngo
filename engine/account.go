@@ -31,8 +31,14 @@ func (b *BaseAccount) GetPositions() map[strategy.Symbol]float64 {
 func (b *BaseAccount) GetCash() float64 {
     return 0
 }
+
 func (b *BaseAccount) GetBalance() float64 {
     return 0
+}
+
+func (b *BaseAccount) SetFilters(priceFilter, volumeFilter map[strategy.Symbol]numberFilter) {
+    b.PriceFilter = priceFilter
+    b.VolumeFilter = volumeFilter
 }
 
 type numberFilter struct {
@@ -41,8 +47,8 @@ type numberFilter struct {
 }
 
 type baseOrderRuler struct {
-    PriceFilter    map[strategy.Symbol]numberFilter
-    QuantityFilter map[strategy.Symbol]numberFilter
+    PriceFilter  map[strategy.Symbol]numberFilter
+    VolumeFilter map[strategy.Symbol]numberFilter
 }
 
 func (b *baseOrderRuler) PriceToTickSize(symbol strategy.Symbol, price float64) float64 {
@@ -56,11 +62,11 @@ func (b *baseOrderRuler) PriceToTickSize(symbol strategy.Symbol, price float64) 
     }
 }
 
-func (b *baseOrderRuler) QuantityToTickSize(symbol strategy.Symbol, quantity float64) float64 {
-    if b.QuantityFilter == nil {
+func (b *baseOrderRuler) VolumeToTickSize(symbol strategy.Symbol, quantity float64) float64 {
+    if b.VolumeFilter == nil {
         return quantity
     }
-    if filter, ok := b.QuantityFilter[symbol]; ok {
+    if filter, ok := b.VolumeFilter[symbol]; ok {
         return utils.AmountToTickSize(filter.tickSize, filter.precision, quantity)
     } else {
         return quantity

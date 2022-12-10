@@ -4,6 +4,7 @@ import (
     "fmt"
     mapset "github.com/deckarep/golang-set"
     "github.com/zhengow/vngo/chart"
+    "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/database"
     "github.com/zhengow/vngo/enum"
     "github.com/zhengow/vngo/strategy"
@@ -15,53 +16,73 @@ import (
 )
 
 type BacktestingEngine struct {
-    symbols     []*strategy.Symbol
+    symbols     []strategy.Symbol
     interval    types.Interval
-    start       *strategy.VnTime
-    end         *strategy.VnTime
+    start       time.Time
+    end         time.Time
     rates       map[strategy.Symbol]float64
     strategy    strategy.Strategy
     _dts        mapset.Set
-    dts         []strategy.VnTime
-    historyData map[string]map[strategy.VnTime]strategy.Bar
-    datetime    *strategy.VnTime
+    dts         []time.Time
+    historyData map[string]map[time.Time]strategy.Bar
+    datetime    time.Time
     tradeCount  int
     *backtestingAccount
     *statisticEngine
 }
 
-var _BacktestingEngine *BacktestingEngine
-
 func NewBacktestingEngine() *BacktestingEngine {
-    if _BacktestingEngine != nil {
-        return _BacktestingEngine
-    }
-    _BacktestingEngine = &BacktestingEngine{
+    return &BacktestingEngine{
         _dts:               mapset.NewSet(),
-        historyData:        make(map[string]map[strategy.VnTime]strategy.Bar),
+        historyData:        make(map[string]map[time.Time]strategy.Bar),
         backtestingAccount: newAccount(),
         statisticEngine:    newStatisticEngine(),
+        rates:              make(map[strategy.Symbol]float64),
     }
-    return _BacktestingEngine
 }
 
-func (b *BacktestingEngine) SetParameters(
-    symbols []*strategy.Symbol,
-    interval types.Interval,
-    start,
-    end time.Time,
-    rates map[strategy.Symbol]float64,
-    priceTicks map[string]int,
-    capital float64,
-) {
-    b.symbols = symbols
-    b.interval = interval
-    b.start = strategy.NewVnTime(start)
-    b.end = strategy.NewVnTime(end)
-    b.setRates(rates)
-    //b.setPriceTicks(priceTicks)
-    b.setCapital(capital)
+func (b *BacktestingEngine) AddSymbol(name string, rate float64, exchange types.Exchange, interval types.Interval) *BacktestingEngine {
+    symbol := strategy.Symbol{
+        Exchange: exchange,
+        Name:     name,
+        Interval: interval,
+    }
+    b.symbols = append(b.symbols, symbol)
+    b.rates[symbol] = rate
+    return b
+}
+
+func (b *BacktestingEngine) AddSymbols(names []string, rates []float64, exchange types.Exchange, interval types.Interval) *BacktestingEngine {
+    if len(names) != len(rates) {
+        fmt.Println("add failed, len(names) != len(rates)")
+        return b
+    }
+    for idx, name := range names {
+        symbol := strategy.Symbol{
+            Exchange: exchange,
+            Name:     name,
+            Interval: interval,
+        }
+        b.symbols = append(b.symbols, symbol)
+        b.rates[symbol] = rates[idx]
+    }
+    return b
+}
+
+func (b *BacktestingEngine) StartDate(date time.Time) *BacktestingEngine {
+    b.start = date
+    return b
+}
+
+func (b *BacktestingEngine) EndDate(date time.Time) *BacktestingEngine {
+    b.end = date
+    return b
+}
+
+func (b *BacktestingEngine) Capital(capital float64) *BacktestingEngine {
+    b.capital = capital
     b.AddCash(capital)
+    return b
 }
 
 func (b *BacktestingEngine) AddStrategy(strategy strategy.Strategy, setting map[string]interface{}) {
@@ -72,19 +93,19 @@ func (b *BacktestingEngine) AddStrategy(strategy strategy.Strategy, setting map[
 
 func (b *BacktestingEngine) LoadData() {
     defer utils.TimeCost("load data")()
-    if b.start == nil || b.end == nil {
+    if b.start.IsZero() || b.end.IsZero() {
         fmt.Println("please set start && end time")
         return
     }
-    start := b.start.Format()
-    end := b.end.Format()
+    start := b.start.Format(consts.DateFormat)
+    end := b.end.Format(consts.DateFormat)
     for _, symbol := range b.symbols {
         if b.historyData[symbol.Name] == nil {
-            b.historyData[symbol.Name] = make(map[strategy.VnTime]strategy.Bar)
+            b.historyData[symbol.Name] = make(map[time.Time]strategy.Bar)
         }
-        bars := database.LoadBarData(*symbol, b.interval, start, end)
+        bars := database.LoadBarData(symbol, symbol.Interval, start, end)
         for _, bar := range bars {
-            _time := bar.Datetime
+            _time := bar.Datetime.Time
             b._dts.Add(_time)
             b.historyData[symbol.Name][_time] = bar
         }
@@ -93,15 +114,15 @@ func (b *BacktestingEngine) LoadData() {
 }
 
 func (b *BacktestingEngine) RunBacktesting() {
-    b.dts = make([]strategy.VnTime, b._dts.Cardinality())
+    b.dts = make([]time.Time, b._dts.Cardinality())
     cnt := 0
     b._dts.Each(func(ele interface{}) bool {
-        b.dts[cnt] = ele.(strategy.VnTime)
+        b.dts[cnt] = ele.(time.Time)
         cnt++
         return false
     })
     sort.Slice(b.dts, func(i, j int) bool {
-        return b.dts[i].Time.Before(b.dts[j].Time)
+        return b.dts[i].Before(b.dts[j])
     })
 
     for _, dt := range b.dts {
@@ -109,8 +130,8 @@ func (b *BacktestingEngine) RunBacktesting() {
     }
 }
 
-func (b *BacktestingEngine) newBars(dt strategy.VnTime) {
-    b.datetime = &dt
+func (b *BacktestingEngine) newBars(dt time.Time) {
+    b.datetime = dt
     bars := make(map[string]strategy.Bar)
     for _, symbol := range b.symbols {
         bars[symbol.Name] = b.historyData[symbol.Name][dt]
@@ -136,7 +157,7 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]strategy.Bar) {
             continue
         }
 
-        delete(b.backtestingAccount.Orders, "1")
+        delete(b.backtestingAccount.Orders, order.OrderId)
 
         b.tradeCount++
 
@@ -154,7 +175,7 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]strategy.Bar) {
             order.Direction,
             tradePrice,
             order.Volume,
-            *b.datetime,
+            *strategy.NewVnTime(b.datetime),
         )
 
         incrementPos := order.Volume
@@ -168,7 +189,11 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]strategy.Bar) {
 }
 
 func (b *BacktestingEngine) ShowPNLChart() {
-    chart.ChartPNL(b.dts, b.balances, "")
+    dts := make([]strategy.VnTime, len(b.dts))
+    for idx, dt := range b.dts {
+        dts[idx] = *strategy.NewVnTime(dt)
+    }
+    chart.ChartPNL(dts, b.balances, "")
 }
 
 func (b *BacktestingEngine) ShowKLineChart() {
@@ -183,6 +208,10 @@ func (b *BacktestingEngine) ShowKLineChart() {
                 trades = append(trades, trade)
             }
         }
-        chart.ChartKLines(b.dts, bars, trades, symbol.Name)
+        dts := make([]strategy.VnTime, len(b.dts))
+        for idx, dt := range b.dts {
+            dts[idx] = *strategy.NewVnTime(dt)
+        }
+        chart.ChartKLines(dts, bars, trades, symbol.Name)
     }
 }

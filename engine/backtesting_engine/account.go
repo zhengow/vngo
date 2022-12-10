@@ -23,11 +23,8 @@ func (o *backtestingAccount) Sell(symbol strategy.Symbol, price, volume float64)
 }
 
 func (o *backtestingAccount) sendOrder(symbol strategy.Symbol, direction types.Direction, price, volume float64) string {
-    //priceTick := 5
-    //if val, ok := o.priceTicks[symbol.Name]; ok {
-    //    priceTick = val
-    //}
-    //price = utils.RoundTo(price, priceTick)
+    price = o.PriceToTickSize(symbol, price)
+    volume = o.VolumeToTickSize(symbol, volume)
     o.limitOrderCount++
     orderId := strconv.Itoa(o.limitOrderCount)
     order := strategy.NewOrder(symbol, orderId, direction, price, volume)
