@@ -3,6 +3,7 @@ package engine
 import (
     "fmt"
     "github.com/zhengow/vngo"
+    "github.com/zhengow/vngo/utils"
     "log"
     "sort"
     "time"
@@ -52,7 +53,7 @@ func (b *LiveTradeEngine) AddStrategy(strategy vngo.Strategy, setting map[string
 }
 
 func (b *LiveTradeEngine) LoadData() {
-    defer vngo.TimeCost("load data")()
+    defer utils.TimeCost("load data")()
     for _, symbol := range b.symbols {
         bars, err := b.gI.LoadBarData(symbol)
         if err != nil {
@@ -60,15 +61,15 @@ func (b *LiveTradeEngine) LoadData() {
             panic(err)
         }
         if bars != nil {
-            if b.historyData[symbol.Symbol] == nil {
-                b.historyData[symbol.Symbol] = make(map[time.Time]vngo.Bar)
+            if b.historyData[symbol.Name] == nil {
+                b.historyData[symbol.Name] = make(map[time.Time]vngo.Bar)
             }
             for _, bar := range bars {
                 _time := bar.Datetime.Time
                 b._dts.Add(_time)
-                b.historyData[symbol.Symbol][_time] = bar
+                b.historyData[symbol.Name][_time] = bar
             }
-            fmt.Printf("%s.%s load success, length: %d\n", symbol.Symbol, symbol.Exchange, len(b.historyData[symbol.Symbol]))
+            fmt.Printf("%s.%s load success, length: %d\n", symbol.Name, symbol.Exchange, len(b.historyData[symbol.Name]))
         }
     }
     b.preRun()
@@ -113,7 +114,7 @@ func (b *LiveTradeEngine) Run() {
 func (b *LiveTradeEngine) newBars(dt time.Time) {
     bars := make(map[string]vngo.Bar)
     for _, symbol := range b.symbols {
-        bars[symbol.Symbol] = b.historyData[symbol.Symbol][dt]
+        bars[symbol.Name] = b.historyData[symbol.Name][dt]
     }
     b.strategy.OnBars(bars)
 }

@@ -15,8 +15,8 @@ package main
 ////go:embed dev.yml
 //var content []byte
 //
-//func getSymbols(symbols []string, exchange vngo.Exchange, interval vngo.Interval) []*vngo.Symbol {
-//   res := make([]*vngo.Symbol, 0)
+//func getSymbols(symbols []string, exchange vngo.Exchange, interval vngo.Interval) []*vngo.Name {
+//   res := make([]*vngo.Name, 0)
 //   for _, symbol := range symbols {
 //       res = append(res, vngo.NewSymbol(symbol, exchange, interval))
 //   }

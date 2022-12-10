@@ -3,6 +3,7 @@ package engine
 import (
     "fmt"
     "github.com/zhengow/vngo"
+    "github.com/zhengow/vngo/utils"
     "log"
     "math"
     "time"
@@ -78,7 +79,7 @@ func (s *statisticEngine) CalculateResult(output bool) {
                 startDate = dt
             }
             for _, _trade := range dtTrades {
-                symbol := _trade.Symbol.Symbol
+                symbol := _trade.Symbol.Name
                 volume := _trade.Volume
                 if _trade.Direction == vngo.DirectionEnum.SHORT {
                     volume *= -1
@@ -108,12 +109,12 @@ func (s *statisticEngine) CalculateResult(output bool) {
         totalMinutes := endDate.Sub(startDate).Minutes()
         totalRetAmount := s.balances[len(s.balances)-1] - s.balances[0]
         totalRetPercent := totalRetAmount / s.balances[0]
-        annualRet := totalRetPercent / totalMinutes * vngo.YearMinutes()
+        annualRet := totalRetPercent / totalMinutes * utils.YearMinutes()
         dailyTradeCount := float64(totalTradeCount) / totalMinutes * (time.Hour.Minutes() * 24)
         dailyRetAmount := totalRetAmount / totalMinutes * (time.Hour.Minutes() * 24)
         dailyRetPercent := totalRetPercent / totalMinutes * (time.Hour.Minutes() * 24)
         //fmt.Println(retPercents)
-        dailyReturnStd = vngo.Std(retPercents) * math.Sqrt(time.Hour.Minutes()*24)
+        dailyReturnStd = utils.Std(retPercents) * math.Sqrt(time.Hour.Minutes()*24)
         sharpeRatio = dailyRetPercent / dailyReturnStd * math.Sqrt(365) // 算出每日夏普
         // returnDropdownRatio = -annualRet / maxDrawdownPercent
         log.Printf("%-15s\t%-s\n", "首个交易日：", startDate.Format(vngo.DateFormat))

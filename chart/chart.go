@@ -5,6 +5,7 @@ import (
     "github.com/go-echarts/go-echarts/v2/charts"
     "github.com/go-echarts/go-echarts/v2/opts"
     "github.com/zhengow/vngo"
+    "github.com/zhengow/vngo/utils"
     "io/ioutil"
     "net/http"
     "os"
@@ -27,7 +28,7 @@ func getYData(y []float64) []opts.LineData {
     lineData := make([]opts.LineData, len(y))
     for idx, data := range y {
         lineData[idx] = opts.LineData{
-            Value:  vngo.RoundTo(data, 2),
+            Value:  utils.RoundTo(data, 2),
             Symbol: "none",
         }
     }
@@ -92,7 +93,7 @@ func getKLineData(bars []vngo.Bar) []opts.KlineData {
     klineData := make([]opts.KlineData, len(bars))
     for idx, bar := range bars {
         klineData[idx] = opts.KlineData{
-            Name:  bar.Symbol.Symbol,
+            Name:  bar.Symbol.Name,
             Value: bar.GetKLineData(),
         }
     }
@@ -142,7 +143,7 @@ func getTradesDataPoints(trades []*vngo.TradeData) []opts.ScatterData {
             icon = SELLICON
         }
         scatterData[idx] = opts.ScatterData{
-            Name:       trade.Symbol.Symbol,
+            Name:       trade.Symbol.Name,
             Symbol:     icon,
             Value:      [2]interface{}{trade.Datetime.Format(vngo.DateFormat), trade.Price},
             SymbolSize: 50,
@@ -175,7 +176,7 @@ func ChartKLines(x []time.Time, y []vngo.Bar, trades []*vngo.TradeData, _filenam
         kline.Overlap(scatter)
     }
     //kline.SetSeriesOptions(charts.WithMarkPointNameCoordItemOpts(getTradesDataPoints(trades)...), charts.WithMarkPointStyleOpts(opts.MarkPointStyle{
-    //    Symbol:     []string{"arrow", "circle"},
+    //    Name:     []string{"arrow", "circle"},
     //    SymbolSize: 20,
     //}))
     if _filename != "" {

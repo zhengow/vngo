@@ -2,7 +2,6 @@ package main
 
 import (
     _ "embed"
-    "fmt"
     "github.com/zhengow/vngo"
     "log"
     "time"
@@ -30,8 +29,7 @@ func main() {
     b.SetParameters(symbols, vngo.IntervalEnum.MINUTE, startDate, endDate, nil, nil, 10000)
     b.AddStrategy(&MyStrategy{Depth: 2}, nil)
     _config, _ := vngo.NewConfig(content)
-    fmt.Println(_config.MysqlConfig)
-    vngo.NewMysql(_config.MysqlConfig)
+    vngo.UseMysql(_config.MysqlConfig)
     b.LoadData()
     b.RunBacktesting()
     b.CalculateResult(true)

@@ -1,14 +1,14 @@
 package vngo
 
 type Symbol struct {
-    Symbol   string
+    Name     string `gorm:"column:symbol"`
     Exchange Exchange
     Interval Interval
 }
 
-func NewSymbol(symbol string, exchange Exchange, interval Interval) *Symbol {
+func NewSymbol(name string, exchange Exchange, interval Interval) *Symbol {
     return &Symbol{
-        Symbol:   symbol,
+        Name:     name,
         Exchange: exchange,
         Interval: interval,
     }

@@ -2,6 +2,7 @@ package engine
 
 import (
     "github.com/zhengow/vngo"
+    "github.com/zhengow/vngo/utils"
 )
 
 type accountEngine struct {
@@ -24,10 +25,10 @@ func (o *accountEngine) Sell(symbol vngo.Symbol, price, volume float64) int {
 
 func (o *accountEngine) sendOrder(symbol vngo.Symbol, direction vngo.Direction, price, volume float64) int {
     priceTick := 5
-    if val, ok := o.priceTicks[symbol.Symbol]; ok {
+    if val, ok := o.priceTicks[symbol.Name]; ok {
         priceTick = val
     }
-    price = vngo.RoundTo(price, priceTick)
+    price = utils.RoundTo(price, priceTick)
     o.limitOrderCount++
     order := vngo.NewOrder(symbol, o.limitOrderCount, direction, price, volume)
     o.activeLimitOrders[o.limitOrderCount] = order

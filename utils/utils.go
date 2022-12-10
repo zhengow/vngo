@@ -1,4 +1,4 @@
-package vngo
+package utils
 
 import (
     "fmt"

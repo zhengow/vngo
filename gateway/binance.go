@@ -4,6 +4,7 @@ import (
     "context"
     "fmt"
     "github.com/zhengow/vngo"
+    "github.com/zhengow/vngo/utils"
     "log"
     "time"
 
@@ -23,13 +24,13 @@ func NewFutureClient(apiKey, secretKey string) *binanceFutureClient {
 }
 
 func (f *binanceFutureClient) LoadBarData(symbol *vngo.Symbol) ([]vngo.Bar, error) {
-    res, err := f.client.NewKlinesService().Symbol(symbol.Symbol).Interval(string(symbol.Interval)).Do(context.Background())
+    res, err := f.client.NewKlinesService().Symbol(symbol.Name).Interval(string(symbol.Interval)).Do(context.Background())
     if err != nil {
         log.Fatalf("load bar data err: %v", err)
     }
     bars := make([]vngo.Bar, len(res))
     for i, v := range res {
-        openValue, highValue, lowValue, closeValue, volumeValue, err := vngo.ParseBarData(v.Open, v.High, v.Low, v.Close, v.Volume)
+        openValue, highValue, lowValue, closeValue, volumeValue, err := utils.ParseBarData(v.Open, v.High, v.Low, v.Close, v.Volume)
         if err != nil {
             return nil, err
         }
@@ -57,7 +58,7 @@ func (f *binanceFutureClient) WebSocketKLine(symbols []*vngo.Symbol) {
     }
     combined := make(map[string]string)
     for _, symbol := range symbols {
-        combined[symbol.Symbol] = string(symbol.Interval)
+        combined[symbol.Name] = string(symbol.Interval)
     }
     doneC, _, err := futures.WsCombinedKlineServe(combined, wsKlineHandler, errHandler)
     if err != nil {
