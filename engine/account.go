@@ -1,90 +1,68 @@
 package engine
 
 import (
-    "github.com/zhengow/vngo/enum"
     "github.com/zhengow/vngo/strategy"
-    "github.com/zhengow/vngo/types"
     "github.com/zhengow/vngo/utils"
 )
 
-type accountEngine struct {
-    priceTicks        map[string]int
-    cash              float64
-    activeLimitOrders map[int]*strategy.Order
-    limitOrderCount   int
-    closes            map[strategy.Symbol]float64
-    positions         map[strategy.Symbol]float64
-    //*positionEngine
+type BaseAccount struct {
+    Cash      float64
+    Orders    map[string]*strategy.Order
+    Positions map[strategy.Symbol]float64
+    baseOrderRuler
 }
 
-func (o *accountEngine) Buy(symbol strategy.Symbol, price, volume float64) int {
-    return o.sendOrder(symbol, enum.DirectionEnum.LONG, price, volume)
+func (b *BaseAccount) Buy(symbol strategy.Symbol, price, volume float64) string {
+    return ""
+}
+func (b *BaseAccount) Sell(symbol strategy.Symbol, price, volume float64) string {
+    return ""
+}
+func (b *BaseAccount) CancelAll() {
 }
 
-func (o *accountEngine) Sell(symbol strategy.Symbol, price, volume float64) int {
-    return o.sendOrder(symbol, enum.DirectionEnum.SHORT, price, volume)
+func (b *BaseAccount) CancelById(orderId string) {
 }
 
-func (o *accountEngine) sendOrder(symbol strategy.Symbol, direction types.Direction, price, volume float64) int {
-    priceTick := 5
-    if val, ok := o.priceTicks[symbol.Name]; ok {
-        priceTick = val
+func (b *BaseAccount) GetPositions() map[strategy.Symbol]float64 {
+    return nil
+}
+
+func (b *BaseAccount) GetCash() float64 {
+    return 0
+}
+func (b *BaseAccount) GetBalance() float64 {
+    return 0
+}
+
+type numberFilter struct {
+    tickSize  float64
+    precision int
+}
+
+type baseOrderRuler struct {
+    PriceFilter    map[strategy.Symbol]numberFilter
+    QuantityFilter map[strategy.Symbol]numberFilter
+}
+
+func (b *baseOrderRuler) PriceToTickSize(symbol strategy.Symbol, price float64) float64 {
+    if b.PriceFilter == nil {
+        return price
     }
-    price = utils.RoundTo(price, priceTick)
-    o.limitOrderCount++
-    order := strategy.NewOrder(symbol, o.limitOrderCount, direction, price, volume)
-    o.activeLimitOrders[o.limitOrderCount] = order
-    return o.limitOrderCount
-}
-
-func (o *accountEngine) CancelAll() {
-    o.activeLimitOrders = make(map[int]*strategy.Order)
-}
-
-func (o *accountEngine) startTrading() {
-    //o.trading = true
-}
-
-func (o *accountEngine) GetPositions() map[strategy.Symbol]float64 {
-    return o.positions
-}
-
-func (o *accountEngine) updatePositions(symbol strategy.Symbol, incrementPos, price float64) {
-    o.positions[symbol] += incrementPos
-    o.cash -= incrementPos * price
-}
-
-func (o *accountEngine) setPriceTicks(priceTicks map[string]int) {
-    o.priceTicks = priceTicks
-}
-
-func (o *accountEngine) GetCash() float64 {
-    return o.cash
-}
-
-func (o *accountEngine) AddCash(increment float64) {
-    o.cash += increment
-}
-
-func (o *accountEngine) GetBalance() float64 {
-    balance := o.cash
-    for symbol, position := range o.positions {
-        closePrice := o.closes[symbol]
-        balance += closePrice * position
-    }
-    return balance
-}
-
-func (o *accountEngine) updateCloses(bars map[string]strategy.Bar) {
-    for _, bar := range bars {
-        o.closes[bar.Symbol] = bar.ClosePrice
+    if filter, ok := b.PriceFilter[symbol]; ok {
+        return utils.AmountToTickSize(filter.tickSize, filter.precision, price)
+    } else {
+        return price
     }
 }
 
-func newOrderEngine() *accountEngine {
-    return &accountEngine{
-        activeLimitOrders: make(map[int]*strategy.Order),
-        positions:         make(map[strategy.Symbol]float64),
-        closes:            make(map[strategy.Symbol]float64),
+func (b *baseOrderRuler) QuantityToTickSize(symbol strategy.Symbol, quantity float64) float64 {
+    if b.QuantityFilter == nil {
+        return quantity
+    }
+    if filter, ok := b.QuantityFilter[symbol]; ok {
+        return utils.AmountToTickSize(filter.tickSize, filter.precision, quantity)
+    } else {
+        return quantity
     }
 }

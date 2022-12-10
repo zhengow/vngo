@@ -4,7 +4,7 @@ import "github.com/zhengow/vngo/types"
 
 type Order struct {
     Symbol    Symbol
-    OrderId   int
+    OrderId   string
     Direction types.Direction
     Price     float64
     Volume    float64
@@ -13,7 +13,7 @@ type Order struct {
 }
 
 func NewOrder(symbol Symbol,
-    orderId int,
+    orderId string,
     direction types.Direction,
     price float64,
     volume float64,

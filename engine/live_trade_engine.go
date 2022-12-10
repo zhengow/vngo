@@ -18,7 +18,7 @@ type LiveTradeEngine struct {
     datetime    *strategy.VnTime
     _dts        mapset.Set
     historyData map[string]map[strategy.VnTime]strategy.Bar
-    *accountEngine
+    *BaseAccount
     gI gateway.GatewayInterface
 }
 
@@ -29,10 +29,10 @@ func NewLiveTradeEngine(gI gateway.GatewayInterface) *LiveTradeEngine {
         return _LiveTradeEngine
     }
     _LiveTradeEngine = &LiveTradeEngine{
-        _dts:          mapset.NewSet(),
-        accountEngine: newOrderEngine(),
-        gI:            gI,
-        historyData:   make(map[string]map[strategy.VnTime]strategy.Bar),
+        _dts:        mapset.NewSet(),
+        BaseAccount: nil,
+        gI:          gI,
+        historyData: make(map[string]map[strategy.VnTime]strategy.Bar),
     }
     return _LiveTradeEngine
 }
@@ -47,7 +47,7 @@ func (b *LiveTradeEngine) SetParameters(
 
 func (b *LiveTradeEngine) AddStrategy(strategy strategy.Strategy, setting map[string]interface{}) {
     strategy.SetSetting(strategy, setting)
-    strategy.Inject(b.accountEngine)
+    //strategy.Inject(b.AccountEngine)
     b.strategy = strategy
 }
 

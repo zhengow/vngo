@@ -1,4 +1,4 @@
-package engine
+package backtesting_engine
 
 import (
     "fmt"
@@ -26,7 +26,7 @@ type BacktestingEngine struct {
     historyData map[string]map[strategy.VnTime]strategy.Bar
     datetime    *strategy.VnTime
     tradeCount  int
-    *accountEngine
+    *backtestingAccount
     *statisticEngine
 }
 
@@ -37,10 +37,10 @@ func NewBacktestingEngine() *BacktestingEngine {
         return _BacktestingEngine
     }
     _BacktestingEngine = &BacktestingEngine{
-        _dts:            mapset.NewSet(),
-        historyData:     make(map[string]map[strategy.VnTime]strategy.Bar),
-        accountEngine:   newOrderEngine(),
-        statisticEngine: newStatisticEngine(),
+        _dts:               mapset.NewSet(),
+        historyData:        make(map[string]map[strategy.VnTime]strategy.Bar),
+        backtestingAccount: newAccount(),
+        statisticEngine:    newStatisticEngine(),
     }
     return _BacktestingEngine
 }
@@ -59,14 +59,14 @@ func (b *BacktestingEngine) SetParameters(
     b.start = strategy.NewVnTime(start)
     b.end = strategy.NewVnTime(end)
     b.setRates(rates)
-    b.setPriceTicks(priceTicks)
+    //b.setPriceTicks(priceTicks)
     b.setCapital(capital)
     b.AddCash(capital)
 }
 
 func (b *BacktestingEngine) AddStrategy(strategy strategy.Strategy, setting map[string]interface{}) {
     strategy.SetSetting(strategy, setting)
-    strategy.Inject(b.accountEngine)
+    strategy.Inject(b.backtestingAccount)
     b.strategy = strategy
 }
 
@@ -116,13 +116,13 @@ func (b *BacktestingEngine) newBars(dt strategy.VnTime) {
         bars[symbol.Name] = b.historyData[symbol.Name][dt]
     }
     b.crossLimitOrder(bars)
-    b.accountEngine.updateCloses(bars)
+    b.backtestingAccount.updateCloses(bars)
     b.strategy.OnBars(bars)
     b.updateClose(bars)
 }
 
 func (b *BacktestingEngine) crossLimitOrder(bars map[string]strategy.Bar) {
-    for _, order := range b.accountEngine.activeLimitOrders {
+    for _, order := range b.backtestingAccount.Orders {
         bar := bars[order.Symbol.Name]
         longCrossPrice := bar.LowPrice
         shortCrossPrice := bar.HighPrice
@@ -136,7 +136,7 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]strategy.Bar) {
             continue
         }
 
-        delete(b.accountEngine.activeLimitOrders, order.OrderId)
+        delete(b.backtestingAccount.Orders, "1")
 
         b.tradeCount++
 
@@ -161,7 +161,7 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]strategy.Bar) {
         if order.Direction == enum.DirectionEnum.SHORT {
             incrementPos = -order.Volume
         }
-        b.accountEngine.updatePositions(order.Symbol, incrementPos, tradePrice)
+        b.backtestingAccount.updatePositions(order.Symbol, incrementPos, tradePrice)
         b.strategy.UpdateTrade(*tradeData)
         b.trades[b.tradeCount] = tradeData
     }

@@ -7,7 +7,7 @@ import (
 
 type TradeData struct {
     Symbol    Symbol
-    OrderId   int
+    OrderId   string
     TradeId   int
     Direction types.Direction
     Price     float64
@@ -16,7 +16,7 @@ type TradeData struct {
 }
 
 func NewTradeData(symbol Symbol,
-    orderId int,
+    orderId string,
     tradeId int,
     direction types.Direction,
     price float64,

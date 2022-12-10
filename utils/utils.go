@@ -71,3 +71,8 @@ func ParseBarData(open, high, low, close, volume string) (float64, float64, floa
     }
     return openValue, highValue, lowValue, closeValue, volumeValue, nil
 }
+
+// AmountToTickSize converts an amount to a tick sized amount
+func AmountToTickSize(tick float64, precision int, amount float64) float64 {
+    return math.Trunc(math.Floor(amount/tick)*tick*math.Pow10(precision)) / math.Pow10(precision)
+}
