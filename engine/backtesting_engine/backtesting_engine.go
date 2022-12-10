@@ -6,7 +6,6 @@ import (
     "github.com/zhengow/vngo/chart"
     "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/database"
-    "github.com/zhengow/vngo/enum"
     "github.com/zhengow/vngo/strategy"
     "github.com/zhengow/vngo/types"
     "github.com/zhengow/vngo/utils"
@@ -141,21 +140,21 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]strategy.Bar) {
         longBestPrice := bar.OpenPrice
         shortBestPrice := bar.OpenPrice
 
-        if order.Status == enum.StatusEnum.SUBMITTING {
-            order.Status = enum.StatusEnum.NOTTRADED
+        if order.Status == consts.StatusEnum.SUBMITTING {
+            order.Status = consts.StatusEnum.NOTTRADED
             b.strategy.UpdateOrder(order)
             b.statisticEngine.updateOrder(order)
         }
 
-        longCross := order.Direction == enum.DirectionEnum.LONG && order.Price >= longCrossPrice && longCrossPrice > 0
-        shortCross := order.Direction == enum.DirectionEnum.SHORT && order.Price <= shortCrossPrice && shortCrossPrice > 0
+        longCross := order.Direction == consts.DirectionEnum.LONG && order.Price >= longCrossPrice && longCrossPrice > 0
+        shortCross := order.Direction == consts.DirectionEnum.SHORT && order.Price <= shortCrossPrice && shortCrossPrice > 0
 
         if !longCross && !shortCross {
             continue
         }
 
         order.Traded = order.Volume
-        order.Status = enum.StatusEnum.ALLTRADED
+        order.Status = consts.StatusEnum.ALLTRADED
         b.strategy.UpdateOrder(order)
 
         delete(b.backtestingAccount.Orders, order.OrderId)
@@ -180,7 +179,7 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[string]strategy.Bar) {
         )
 
         incrementPos := order.Volume
-        if order.Direction == enum.DirectionEnum.SHORT {
+        if order.Direction == consts.DirectionEnum.SHORT {
             incrementPos = -order.Volume
         }
         b.backtestingAccount.updatePositions(order.Symbol, incrementPos, tradePrice)

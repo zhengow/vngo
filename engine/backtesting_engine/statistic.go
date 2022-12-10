@@ -2,7 +2,7 @@ package backtesting_engine
 
 import (
     "fmt"
-    "github.com/zhengow/vngo/enum"
+    "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/strategy"
     "github.com/zhengow/vngo/utils"
     "log"
@@ -88,7 +88,7 @@ func (s *statisticEngine) CalculateResult(output bool) {
             for _, _trade := range dtTrades {
                 symbol := _trade.Symbol.Name
                 volume := _trade.Volume
-                if _trade.Direction == enum.DirectionEnum.SHORT {
+                if _trade.Direction == consts.DirectionEnum.SHORT {
                     volume *= -1
                 }
                 currentPos[symbol] += volume

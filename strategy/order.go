@@ -1,7 +1,7 @@
 package strategy
 
 import (
-    "github.com/zhengow/vngo/enum"
+    "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/types"
 )
 
@@ -30,7 +30,7 @@ func NewOrder(symbol Symbol,
         Direction: direction,
         Price:     price,
         Volume:    volume,
-        Status:    enum.StatusEnum.SUBMITTING,
+        Status:    consts.StatusEnum.SUBMITTING,
         //datetime: datetime,
     }
 }

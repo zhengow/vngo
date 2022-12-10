@@ -1,7 +1,7 @@
 package strategy
 
 import (
-    "github.com/zhengow/vngo/enum"
+    "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/types"
 )
 
@@ -35,5 +35,5 @@ func NewTradeData(symbol Symbol,
 }
 
 func (t *TradeData) IsSell() bool {
-    return t.Direction == enum.DirectionEnum.SHORT
+    return t.Direction == consts.DirectionEnum.SHORT
 }

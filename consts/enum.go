@@ -1,4 +1,4 @@
-package enum
+package consts
 
 import "github.com/zhengow/vngo/types"
 

@@ -1,8 +1,8 @@
 package backtesting_engine
 
 import (
+    "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/engine"
-    "github.com/zhengow/vngo/enum"
     "github.com/zhengow/vngo/strategy"
     "github.com/zhengow/vngo/types"
     "strconv"
@@ -15,11 +15,11 @@ type backtestingAccount struct {
 }
 
 func (o *backtestingAccount) Buy(symbol strategy.Symbol, price, volume float64) string {
-    return o.sendOrder(symbol, enum.DirectionEnum.LONG, price, volume)
+    return o.sendOrder(symbol, consts.DirectionEnum.LONG, price, volume)
 }
 
 func (o *backtestingAccount) Sell(symbol strategy.Symbol, price, volume float64) string {
-    return o.sendOrder(symbol, enum.DirectionEnum.SHORT, price, volume)
+    return o.sendOrder(symbol, consts.DirectionEnum.SHORT, price, volume)
 }
 
 func (o *backtestingAccount) sendOrder(symbol strategy.Symbol, direction types.Direction, price, volume float64) string {
