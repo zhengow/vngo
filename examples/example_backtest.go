@@ -3,7 +3,6 @@ package main
 import (
     _ "embed"
     "github.com/zhengow/vngo"
-    "github.com/zhengow/vngo/engine"
     "log"
     "time"
 )
@@ -13,7 +12,7 @@ var content []byte
 
 func main() {
     log.SetFlags(log.Ldate | log.Ltime)
-    b := engine.NewBacktestingEngine()
+    b := vngo.NewBacktestingEngine()
     symbols := vngo.GetSymbols([]string{"BTCDOMUSDT"}, vngo.BinanceExchange, vngo.MinuteInterval)
     startDate := time.Date(2022, 7, 1, 0, 0, 0, 0, time.Local)
     endDate := time.Date(2022, 7, 2, 0, 0, 0, 0, time.Local)

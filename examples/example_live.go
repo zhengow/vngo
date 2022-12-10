@@ -1,39 +1,24 @@
 package main
 
-//import (
-//   _ "embed"
-//   "github.com/zhengow/vngo"
-//   "log"
-//
-//   "github.com/zhengow/vngo/config"
-//
-//   "github.com/zhengow/vngo/database"
-//   "github.com/zhengow/vngo/gateway"
-//   "github.com/zhengow/vngo/live_trade_engine"
-//)
-//
-////go:embed dev.yml
-//var content []byte
-//
-//func getSymbols(symbols []string, exchange vngo.Exchange, interval types.Interval) []*vngo.Name {
-//   res := make([]*vngo.Name, 0)
-//   for _, symbol := range symbols {
-//       res = append(res, vngo.NewSymbol(symbol, exchange, interval))
-//   }
-//   return res
-//}
-//
-//func main() {
-//   log.SetFlags(log.Ldate | log.Ltime)
-//   _config, _ := config.NewConfig(content)
-//   database.NewMysql(_config.MysqlConfig)
-//   client := gateway.NewFutureClient(_config.Apikey, _config.SecretKey)
-//   b := live_trade_engine.NewEngine(client)
-//   symbols := getSymbols([]string{"BTCDOMUSDT"}, vngo.ExchangeEnum.BINANCE, types.IntervalEnum.MINUTE)
-//   b.SetParameters(symbols, types.IntervalEnum.MINUTE)
-//   b.AddStrategy(&MyStrategy{}, nil)
-//   b.LoadData()
-//   b.Run()
-//}
+import (
+    _ "embed"
+    "github.com/zhengow/vngo"
+    "github.com/zhengow/vngo/gateway"
+    "log"
+)
 
-func test() {}
+//go:embed dev.yml
+var content []byte
+
+func main() {
+    log.SetFlags(log.Ldate | log.Ltime)
+    _config, _ := vngo.NewConfig(content)
+    vngo.UseMysql(_config.MysqlConfig)
+    client := gateway.NewFutureClient(_config.Apikey, _config.SecretKey)
+    b := vngo.NewLiveTradeEngine(client)
+    symbols := vngo.GetSymbols([]string{"BTCDOMUSDT"}, vngo.BinanceExchange, vngo.MinuteInterval)
+    b.SetParameters(symbols, vngo.MinuteInterval)
+    b.AddStrategy(&MyStrategy{}, nil)
+    b.LoadData()
+    b.Run()
+}

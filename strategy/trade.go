@@ -1,4 +1,4 @@
-package models
+package strategy
 
 import (
     "github.com/zhengow/vngo/enum"

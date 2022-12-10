@@ -1,8 +1,8 @@
 package gateway
 
-import "github.com/zhengow/vngo/models"
+import "github.com/zhengow/vngo/strategy"
 
 type GatewayInterface interface {
-    LoadBarData(*models.Symbol) ([]models.Bar, error)
-    WebSocketKLine([]*models.Symbol)
+    LoadBarData(*strategy.Symbol) ([]strategy.Bar, error)
+    WebSocketKLine([]*strategy.Symbol)
 }

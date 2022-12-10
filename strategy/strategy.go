@@ -1,22 +1,21 @@
-package vngo
+package strategy
 
 import (
     "fmt"
-    "github.com/zhengow/vngo/models"
     "reflect"
 )
 
 type accountInterface interface {
-    Buy(symbol models.Symbol, price, volume float64) int
-    Sell(symbol models.Symbol, price, volume float64) int
+    Buy(symbol Symbol, price, volume float64) int
+    Sell(symbol Symbol, price, volume float64) int
     CancelAll()
-    GetPositions() map[models.Symbol]float64
+    GetPositions() map[Symbol]float64
     GetCash() float64
     GetBalance() float64
 }
 
 type marketInterface interface {
-    CurrentTime() models.VnTime
+    CurrentTime() VnTime
 }
 
 type BaseStrategy struct {
@@ -40,15 +39,38 @@ func (s *BaseStrategy) SetSetting(strategy interface{}, setting map[string]inter
     }
 }
 
-func (s *BaseStrategy) OnBars(bars map[string]models.Bar) {
+func (s *BaseStrategy) OnBars(bars map[string]Bar) {
 }
 
-func (s *BaseStrategy) UpdateTrade(trade models.TradeData) {
+func (s *BaseStrategy) UpdateTrade(trade TradeData) {
 }
 
 type Strategy interface {
     Inject(accountInterface)
     SetSetting(interface{}, map[string]interface{})
-    OnBars(map[string]models.Bar)
-    UpdateTrade(models.TradeData)
+    OnBars(map[string]Bar)
+    UpdateTrade(TradeData)
 }
+
+//type Bar interface {
+//    GetDateTime() time.Time
+//    GetSymbol() Symbol
+//    GetOpen() float64
+//    GetHigh() float64
+//    GetLow() float64
+//    GetClose() float64
+//    GetVolume() float64
+//}
+//
+//type Symbol interface {
+//    GetName() string
+//    GetExchange() string
+//}
+//
+//type TradeData interface {
+//    IsSell() bool
+//    GetDateTime() time.Time
+//    GetSymbol() Symbol
+//    GetPrice() float64
+//    GetVolume() float64
+//}

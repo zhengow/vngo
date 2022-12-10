@@ -1,4 +1,4 @@
-package models
+package strategy
 
 import (
     "database/sql/driver"

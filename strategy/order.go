@@ -1,4 +1,4 @@
-package models
+package strategy
 
 import "github.com/zhengow/vngo/types"
 
@@ -9,7 +9,7 @@ type Order struct {
     Price     float64
     Volume    float64
     //status    Status
-    //datetime models.VnTime
+    //datetime strategy.VnTime
 }
 
 func NewOrder(symbol Symbol,
@@ -18,7 +18,7 @@ func NewOrder(symbol Symbol,
     price float64,
     volume float64,
 //status Status,
-//    datetime models.VnTime
+//    datetime strategy.VnTime
 ) *Order {
     return &Order{
         Symbol:    symbol,
