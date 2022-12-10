@@ -1,28 +1,27 @@
-package database
+package vngo
 
 import (
     "fmt"
-    "github.com/zhengow/vngo"
 )
 
 type Database interface {
     LoadBarData(
-        symbol vngo.Symbol,
-        interval vngo.Interval,
+        symbol Symbol,
+        interval Interval,
         start string,
         end string,
-    ) []vngo.Bar
-    SaveBarData([]vngo.Bar) bool
+    ) []Bar
+    SaveBarData([]Bar) bool
 }
 
 var _db Database // default sqlite
 
 func LoadBarData(
-    symbol vngo.Symbol,
-    interval vngo.Interval,
+    symbol Symbol,
+    interval Interval,
     start string,
     end string,
-) []vngo.Bar {
+) []Bar {
     if _db == nil {
         fmt.Println("db is nil")
         return nil

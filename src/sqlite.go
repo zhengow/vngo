@@ -1,9 +1,7 @@
-package database
+package vngo
 
 import (
     "fmt"
-    "github.com/zhengow/vngo"
-
     "gorm.io/driver/sqlite"
     "gorm.io/gorm"
 )
@@ -19,7 +17,7 @@ func NewSqlite() {
         _db = _sqlite
     }
     db, err := gorm.Open(sqlite.Open("vngo.db"), &gorm.Config{})
-    db.AutoMigrate(&vngo.Bar{})
+    db.AutoMigrate(&Bar{})
     if err != nil {
         fmt.Println(err)
         return
@@ -31,18 +29,18 @@ func NewSqlite() {
 }
 
 func (s *Sqlite) LoadBarData(
-    symbol vngo.Symbol,
-    interval vngo.Interval,
+    symbol Symbol,
+    interval Interval,
     start string,
     end string,
-) []vngo.Bar {
-    var bars []vngo.Bar
+) []Bar {
+    var bars []Bar
     s.db.Where("symbol = ? AND exchange = ? AND interval = ? AND datetime >= ? AND datetime <= ?",
         symbol.Symbol, symbol.Exchange, interval, start, end).Order("datetime").Find(&bars)
     return bars
 }
 
-func (s *Sqlite) SaveBarData(bars []vngo.Bar) bool {
+func (s *Sqlite) SaveBarData(bars []Bar) bool {
     tx := s.db.CreateInBatches(bars, 100)
     if tx.Error != nil {
         fmt.Println(tx.Error)

@@ -1,10 +1,7 @@
-package database
+package vngo
 
 import (
     "fmt"
-    "github.com/zhengow/vngo"
-
-    "github.com/zhengow/vngo/config"
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
 )
@@ -38,18 +35,18 @@ func NewMysql(mysqlConfig *config.MysqlConfig) {
 }
 
 func (s *Mysql) LoadBarData(
-    symbol vngo.Symbol,
-    interval vngo.Interval,
+    symbol Symbol,
+    interval Interval,
     start string,
     end string,
-) []vngo.Bar {
-    var bars []vngo.Bar
+) []Bar {
+    var bars []Bar
     s.db.Table("dbbardata").Where(fmt.Sprintf("symbol='%s' AND exchange='%s' AND `interval`='%s' AND datetime>='%s' AND datetime<='%s'",
         symbol.Symbol, symbol.Exchange, interval, start, end)).Order("datetime").Find(&bars)
     return bars
 }
 
-func (s *Mysql) SaveBarData(bars []vngo.Bar) bool {
+func (s *Mysql) SaveBarData(bars []Bar) bool {
     tx := s.db.CreateInBatches(bars, 100)
     if tx.Error != nil {
         fmt.Println(tx.Error)

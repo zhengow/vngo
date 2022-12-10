@@ -1,4 +1,4 @@
-package backtesting_engine
+package engine
 
 import (
     "github.com/zhengow/vngo"

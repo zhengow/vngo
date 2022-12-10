@@ -1,4 +1,4 @@
-package backtesting_engine
+package engine
 
 import (
     "fmt"
@@ -9,7 +9,6 @@ import (
 
     mapset "github.com/deckarep/golang-set"
     "github.com/zhengow/vngo/chart"
-    "github.com/zhengow/vngo/database"
 )
 
 type BacktestingEngine struct {
@@ -30,7 +29,7 @@ type BacktestingEngine struct {
 
 var _BacktestingEngine *BacktestingEngine
 
-func NewEngine() *BacktestingEngine {
+func NewBacktestingEngine() *BacktestingEngine {
     if _BacktestingEngine != nil {
         return _BacktestingEngine
     }
@@ -80,7 +79,7 @@ func (b *BacktestingEngine) LoadData() {
         if b.historyData[symbol.Symbol] == nil {
             b.historyData[symbol.Symbol] = make(map[time.Time]vngo.Bar)
         }
-        bars := database.LoadBarData(*symbol, b.interval, start, end)
+        bars := vngo.LoadBarData(*symbol, b.interval, start, end)
         for _, bar := range bars {
             _time := bar.Datetime.Time
             b._dts.Add(_time)

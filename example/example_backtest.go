@@ -1,4 +1,4 @@
-package main
+package example
 
 import (
     _ "embed"
@@ -7,10 +7,7 @@ import (
     "log"
     "time"
 
-    "github.com/zhengow/vngo/config"
-
-    "github.com/zhengow/vngo/backtesting_engine"
-    "github.com/zhengow/vngo/database"
+    "github.com/zhengow/vngo/engine"
 )
 
 //go:embed dev.yml
@@ -26,15 +23,15 @@ func getSymbols(symbols []string, exchange vngo.Exchange, interval vngo.Interval
 
 func main() {
     log.SetFlags(log.Ldate | log.Ltime)
-    b := backtesting_engine.NewEngine()
+    b := engine.NewBacktestingEngine()
     symbols := getSymbols([]string{"BTCDOMUSDT"}, vngo.ExchangeEnum.BINANCE, vngo.IntervalEnum.MINUTE)
     startDate := time.Date(2022, 7, 1, 0, 0, 0, 0, time.Local)
     endDate := time.Date(2022, 7, 2, 0, 0, 0, 0, time.Local)
     b.SetParameters(symbols, vngo.IntervalEnum.MINUTE, startDate, endDate, nil, nil, 10000)
     b.AddStrategy(&MyStrategy{Depth: 2}, nil)
-    _config, _ := config.NewConfig(content)
+    _config, _ := vngo.NewConfig(content)
     fmt.Println(_config.MysqlConfig)
-    database.NewMysql(_config.MysqlConfig)
+    vngo.NewMysql(_config.MysqlConfig)
     b.LoadData()
     b.RunBacktesting()
     b.CalculateResult(true)
