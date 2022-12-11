@@ -22,6 +22,6 @@ func main() {
     engine.LoadData()
     engine.RunBacktesting()
     engine.CalculateResult(true)
-    engine.ShowPNLChart()
+    //engine.ShowPNLChart()
     // engine.ShowKLineChart()
 }
