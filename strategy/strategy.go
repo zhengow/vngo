@@ -40,19 +40,19 @@ func (s *BaseStrategy) SetSetting(strategy interface{}, setting map[string]inter
     }
 }
 
-func (s *BaseStrategy) OnBars(bars map[string]Bar) {
+func (s *BaseStrategy) OnBars(map[Symbol]Bar) {
 }
 
-func (s *BaseStrategy) UpdateTrade(trade TradeData) {
+func (s *BaseStrategy) UpdateTrade(TradeData) {
 }
 
-func (s *BaseStrategy) UpdateOrder(order *Order) {
+func (s *BaseStrategy) UpdateOrder(*Order) {
 }
 
 type Strategy interface {
     Inject(accountInterface)
     SetSetting(interface{}, map[string]interface{})
-    OnBars(map[string]Bar)
+    OnBars(map[Symbol]Bar)
     UpdateTrade(TradeData)
     UpdateOrder(*Order)
 }

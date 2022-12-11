@@ -2,12 +2,14 @@ package strategy
 
 import (
     "fmt"
+    "github.com/zhengow/vngo/types"
     "time"
 )
 
 type Bar struct {
     Symbol
     Datetime     VnTime `gorm:"type:datetime"`
+    Interval     types.Interval
     Volume       float64
     OpenInterest float64
     OpenPrice    float64
@@ -17,7 +19,7 @@ type Bar struct {
 }
 
 func (b *Bar) FullName() string {
-    return fmt.Sprintf("%s.%s", b.Symbol, b.Exchange)
+    return fmt.Sprintf("%s.%s", b.Symbol.Name, b.Symbol.Exchange)
 }
 
 func (b *Bar) GetKLineData() [4]float64 {

@@ -12,7 +12,7 @@ import (
 )
 
 type LiveTradeEngine struct {
-    symbols     []*strategy.Symbol
+    symbols     []strategy.Symbol
     interval    types.Interval
     strategy    strategy.Strategy
     datetime    *strategy.VnTime
@@ -38,7 +38,7 @@ func NewLiveTradeEngine(gI gateway.GatewayInterface) *LiveTradeEngine {
 }
 
 func (b *LiveTradeEngine) SetParameters(
-    symbols []*strategy.Symbol,
+    symbols []strategy.Symbol,
     interval types.Interval,
 ) {
     b.symbols = symbols
@@ -111,9 +111,9 @@ func (b *LiveTradeEngine) Run() {
 }
 
 func (b *LiveTradeEngine) newBars(dt strategy.VnTime) {
-    bars := make(map[string]strategy.Bar)
+    bars := make(map[strategy.Symbol]strategy.Bar)
     for _, symbol := range b.symbols {
-        bars[symbol.Name] = b.historyData[symbol.Name][dt]
+        bars[symbol] = b.historyData[symbol.Name][dt]
     }
     b.strategy.OnBars(bars)
 }

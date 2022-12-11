@@ -16,7 +16,7 @@ type statisticEngine struct {
     orders     map[string]*strategy.Order
     tradeCount int
     trades     map[int]*strategy.TradeData
-    closes     map[strategy.VnTime]map[string]float64
+    closes     map[strategy.VnTime]map[strategy.Symbol]float64
     balances   []float64
     rates      map[strategy.Symbol]float64
 }
@@ -25,8 +25,8 @@ func (s *statisticEngine) setCapital(capital float64) {
     s.capital = capital
 }
 
-func (s *statisticEngine) onBars(bars map[string]strategy.Bar) {
-    currentCloses := make(map[string]float64)
+func (s *statisticEngine) onBars(bars map[strategy.Symbol]strategy.Bar) {
+    currentCloses := make(map[strategy.Symbol]float64)
     currentTime := strategy.VnTime{}
     for symbol, bar := range bars {
         currentCloses[symbol] = bar.ClosePrice
@@ -58,7 +58,7 @@ func (s *statisticEngine) CalculateResult(output bool) {
         return
     }
     trades := getTrades(s.trades)
-    currentPos := make(map[string]float64)
+    currentPos := make(map[strategy.Symbol]float64)
 
     startDate, endDate := *strategy.NewVnTime(time.Time{}), s.dts[len(s.dts)-1]
     maxPNL, maxDrawdown, maxDrawdownPercent := s.capital, 0.0, 0.0
@@ -86,18 +86,17 @@ func (s *statisticEngine) CalculateResult(output bool) {
                 startDate = dt
             }
             for _, _trade := range dtTrades {
-                symbol := _trade.Symbol.Name
                 volume := _trade.Volume
                 if _trade.Direction == consts.DirectionEnum.SHORT {
                     volume *= -1
                 }
-                currentPos[symbol] += volume
+                currentPos[_trade.Symbol] += volume
                 rate := s.rates[_trade.Symbol]
                 turnover := _trade.Price * _trade.Volume
                 fee := rate * _trade.Price * _trade.Volume
                 totalCommission += fee
                 totalTurnover += turnover
-                balance += volume*(closes[symbol]-_trade.Price) - fee
+                balance += volume*(closes[_trade.Symbol]-_trade.Price) - fee
                 totalTradeCount++
             }
         }
@@ -147,7 +146,7 @@ func newStatisticEngine() *statisticEngine {
     return &statisticEngine{
         trades: make(map[int]*strategy.TradeData),
         orders: make(map[string]*strategy.Order),
-        closes: make(map[strategy.VnTime]map[string]float64),
+        closes: make(map[strategy.VnTime]map[strategy.Symbol]float64),
         rates:  make(map[strategy.Symbol]float64),
     }
 }

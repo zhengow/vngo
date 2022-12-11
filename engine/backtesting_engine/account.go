@@ -75,7 +75,7 @@ func (o *backtestingAccount) GetBalance() float64 {
     return balance
 }
 
-func (o *backtestingAccount) updateCloses(bars map[string]strategy.Bar) {
+func (o *backtestingAccount) updateCloses(bars map[strategy.Symbol]strategy.Bar) {
     for _, bar := range bars {
         o.closes[bar.Symbol] = bar.ClosePrice
     }

@@ -14,7 +14,7 @@ func main() {
     log.SetFlags(log.Ldate | log.Ltime)
     _config, _ := vngo.NewConfig(content)
     vngo.UseMysql(_config.MysqlConfig)
-    engine := vngo.NewBacktestingEngine().AddSymbols([]string{"BTCDOMUSDT"}, []float64{0.0001}, vngo.BinanceExchange, vngo.MinuteInterval)
+    engine := vngo.NewBacktestingEngine().AddSymbols([]string{"BTCDOMUSDT"}, []float64{0.0001}, vngo.BinanceExchange).SetInterval(vngo.MinuteInterval)
     startDate := time.Date(2022, 7, 1, 0, 0, 0, 0, time.Local)
     endDate := time.Date(2022, 7, 2, 0, 0, 0, 0, time.Local)
     engine.StartDate(startDate).EndDate(endDate).Capital(10000)

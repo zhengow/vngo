@@ -37,25 +37,29 @@ func NewBacktestingEngine() *BacktestingEngine {
     }
 }
 
-func (b *BacktestingEngine) AddSymbol(name string, rate float64, exchange types.Exchange, interval types.Interval) *BacktestingEngine {
+func (b *BacktestingEngine) AddSymbol(name string, rate float64, exchange types.Exchange) *BacktestingEngine {
     symbol := strategy.Symbol{
         Exchange: exchange,
         Name:     name,
-        Interval: interval,
     }
     b.setRate(symbol, rate)
     b.symbols = append(b.symbols, symbol)
     return b
 }
 
-func (b *BacktestingEngine) AddSymbols(names []string, rates []float64, exchange types.Exchange, interval types.Interval) *BacktestingEngine {
+func (b *BacktestingEngine) AddSymbols(names []string, rates []float64, exchange types.Exchange) *BacktestingEngine {
     if len(names) != len(rates) {
         fmt.Println("add failed, len(names) != len(rates)")
         return b
     }
     for idx, name := range names {
-        b.AddSymbol(name, rates[idx], exchange, interval)
+        b.AddSymbol(name, rates[idx], exchange)
     }
+    return b
+}
+
+func (b *BacktestingEngine) SetInterval(interval types.Interval) *BacktestingEngine {
+    b.interval = interval
     return b
 }
 
@@ -93,7 +97,7 @@ func (b *BacktestingEngine) LoadData() {
         if b.historyData[symbol.Name] == nil {
             b.historyData[symbol.Name] = make(map[time.Time]strategy.Bar)
         }
-        bars := database.LoadBarData(symbol, symbol.Interval, start, end)
+        bars := database.LoadBarData(symbol, b.interval, start, end)
         for _, bar := range bars {
             _time := bar.Datetime.Time
             b._dts.Add(_time)
@@ -122,9 +126,9 @@ func (b *BacktestingEngine) RunBacktesting() {
 
 func (b *BacktestingEngine) newBars(dt time.Time) {
     b.datetime = dt
-    bars := make(map[string]strategy.Bar)
+    bars := make(map[strategy.Symbol]strategy.Bar)
     for _, symbol := range b.symbols {
-        bars[symbol.Name] = b.historyData[symbol.Name][dt]
+        bars[symbol] = b.historyData[symbol.Name][dt]
     }
     b.crossLimitOrder(bars)
     b.backtestingAccount.updateCloses(bars)
@@ -132,9 +136,9 @@ func (b *BacktestingEngine) newBars(dt time.Time) {
     b.statisticEngine.onBars(bars)
 }
 
-func (b *BacktestingEngine) crossLimitOrder(bars map[string]strategy.Bar) {
+func (b *BacktestingEngine) crossLimitOrder(bars map[strategy.Symbol]strategy.Bar) {
     for _, order := range b.backtestingAccount.Orders {
-        bar := bars[order.Symbol.Name]
+        bar := bars[order.Symbol]
         longCrossPrice := bar.LowPrice
         shortCrossPrice := bar.HighPrice
         longBestPrice := bar.OpenPrice
