@@ -10,8 +10,8 @@ type VnTime struct {
     time.Time
 }
 
-func NewVnTime(t time.Time) *VnTime {
-    return &VnTime{
+func NewVnTime(t time.Time) VnTime {
+    return VnTime{
         t,
     }
 }

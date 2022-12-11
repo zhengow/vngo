@@ -60,7 +60,7 @@ func (s *statisticEngine) CalculateResult(output bool) {
     trades := getTrades(s.trades)
     currentPos := make(map[strategy.Symbol]float64)
 
-    startDate, endDate := *strategy.NewVnTime(time.Time{}), s.dts[len(s.dts)-1]
+    startDate, endDate := strategy.NewVnTime(time.Time{}), s.dts[len(s.dts)-1]
     maxPNL, maxDrawdown, maxDrawdownPercent := s.capital, 0.0, 0.0
     totalTurnover, totalCommission := 0.0, 0.0
     totalTradeCount := 0

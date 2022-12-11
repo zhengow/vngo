@@ -179,7 +179,7 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[strategy.Symbol]strategy.Ba
             order.Direction,
             tradePrice,
             order.Volume,
-            *strategy.NewVnTime(b.datetime),
+            strategy.NewVnTime(b.datetime),
         )
 
         incrementPos := order.Volume
@@ -195,7 +195,7 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[strategy.Symbol]strategy.Ba
 func (b *BacktestingEngine) ShowPNLChart() {
     dts := make([]strategy.VnTime, len(b.dts))
     for idx, dt := range b.dts {
-        dts[idx] = *strategy.NewVnTime(dt)
+        dts[idx] = strategy.NewVnTime(dt)
     }
     chart.ChartPNL(dts, b.balances, "")
 }
@@ -214,7 +214,7 @@ func (b *BacktestingEngine) ShowKLineChart() {
         }
         dts := make([]strategy.VnTime, len(b.dts))
         for idx, dt := range b.dts {
-            dts[idx] = *strategy.NewVnTime(dt)
+            dts[idx] = strategy.NewVnTime(dt)
         }
         chart.ChartKLines(dts, bars, trades, symbol.Name)
     }

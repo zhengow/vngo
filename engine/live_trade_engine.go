@@ -12,6 +12,7 @@ import (
 )
 
 type LiveTradeEngine struct {
+    *BaseEngine
     symbols     []strategy.Symbol
     interval    types.Interval
     strategy    strategy.Strategy
@@ -54,7 +55,7 @@ func (b *LiveTradeEngine) AddStrategy(strategy strategy.Strategy, setting map[st
 func (b *LiveTradeEngine) LoadData() {
     defer utils.TimeCost("load data")()
     for _, symbol := range b.symbols {
-        bars, err := b.gI.LoadBarData(symbol)
+        bars, err := b.gI.LoadBarData(symbol, b.interval)
         if err != nil {
             log.Fatal(err)
             panic(err)
@@ -92,7 +93,7 @@ func (b *LiveTradeEngine) preRun() {
 }
 
 func (b *LiveTradeEngine) Run() {
-    b.gI.WebSocketKLine(b.symbols)
+    b.gI.WebSocketKLine(b.symbols, b.interval)
     // b.vngo.
     // dts = make([]strategy.VnTime, b._dts.Cardinality())
     // cnt := 0

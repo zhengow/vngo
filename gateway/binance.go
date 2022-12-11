@@ -24,7 +24,7 @@ func NewFutureClient(apiKey, secretKey string) *binanceFutureClient {
     }
 }
 
-func (f *binanceFutureClient) LoadBarData(symbol *strategy.Symbol, interval types.Interval) ([]strategy.Bar, error) {
+func (f *binanceFutureClient) LoadBarData(symbol strategy.Symbol, interval types.Interval) ([]strategy.Bar, error) {
     res, err := f.client.NewKlinesService().Symbol(symbol.Name).Interval(string(interval)).Do(context.Background())
     if err != nil {
         log.Fatalf("load bar data err: %v", err)
@@ -36,8 +36,8 @@ func (f *binanceFutureClient) LoadBarData(symbol *strategy.Symbol, interval type
             return nil, err
         }
         bars[i] = strategy.Bar{
-            Symbol:       *symbol,
-            Datetime:     *strategy.NewVnTime(time.UnixMilli(v.OpenTime)),
+            Symbol:       symbol,
+            Datetime:     strategy.NewVnTime(time.UnixMilli(v.OpenTime)),
             Volume:       volumeValue,
             OpenInterest: 0,
             OpenPrice:    openValue,
@@ -49,7 +49,7 @@ func (f *binanceFutureClient) LoadBarData(symbol *strategy.Symbol, interval type
     return bars, nil
 }
 
-func (f *binanceFutureClient) WebSocketKLine(symbols []*strategy.Symbol, interval types.Interval) {
+func (f *binanceFutureClient) WebSocketKLine(symbols []strategy.Symbol, interval types.Interval) {
     wsKlineHandler := func(event *futures.WsKlineEvent) {
         fmt.Println(event)
     }
