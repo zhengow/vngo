@@ -3,7 +3,7 @@ package backtesting_engine
 import (
     "fmt"
     "github.com/zhengow/vngo/consts"
-    "github.com/zhengow/vngo/strategy"
+    "github.com/zhengow/vngo/models"
     "github.com/zhengow/vngo/utils"
     "log"
     "math"
@@ -12,22 +12,22 @@ import (
 
 type statisticEngine struct {
     capital    float64
-    dts        []strategy.VnTime
-    orders     map[string]*strategy.Order
+    dts        []models.VnTime
+    orders     map[string]*models.Order
     tradeCount int
-    trades     map[int]*strategy.TradeData
-    closes     map[strategy.VnTime]map[strategy.Symbol]float64
+    trades     map[int]*models.TradeData
+    closes     map[models.VnTime]map[models.Symbol]float64
     balances   []float64
-    rates      map[strategy.Symbol]float64
+    rates      map[models.Symbol]float64
 }
 
 func (s *statisticEngine) setCapital(capital float64) {
     s.capital = capital
 }
 
-func (s *statisticEngine) onBars(bars map[strategy.Symbol]strategy.Bar) {
-    currentCloses := make(map[strategy.Symbol]float64)
-    currentTime := strategy.VnTime{}
+func (s *statisticEngine) onBars(bars map[models.Symbol]models.Bar) {
+    currentCloses := make(map[models.Symbol]float64)
+    currentTime := models.VnTime{}
     for symbol, bar := range bars {
         currentCloses[symbol] = bar.ClosePrice
         currentTime = bar.Datetime
@@ -36,17 +36,17 @@ func (s *statisticEngine) onBars(bars map[strategy.Symbol]strategy.Bar) {
     s.dts = append(s.dts, currentTime)
 }
 
-func (s *statisticEngine) updateOrder(order *strategy.Order) {
+func (s *statisticEngine) updateOrder(order *models.Order) {
     s.orders[order.OrderId] = order
 }
 
-func getTrades(_trades map[int]*strategy.TradeData) map[strategy.VnTime][]*strategy.TradeData {
-    trades := make(map[strategy.VnTime][]*strategy.TradeData)
+func getTrades(_trades map[int]*models.TradeData) map[models.VnTime][]*models.TradeData {
+    trades := make(map[models.VnTime][]*models.TradeData)
     for _, trade := range _trades {
         if dtTrades, ok := trades[trade.Datetime]; ok {
             dtTrades = append(dtTrades, trade)
         } else {
-            trades[trade.Datetime] = []*strategy.TradeData{trade}
+            trades[trade.Datetime] = []*models.TradeData{trade}
         }
     }
     return trades
@@ -58,9 +58,9 @@ func (s *statisticEngine) CalculateResult(output bool) {
         return
     }
     trades := getTrades(s.trades)
-    currentPos := make(map[strategy.Symbol]float64)
+    currentPos := make(map[models.Symbol]float64)
 
-    startDate, endDate := strategy.NewVnTime(time.Time{}), s.dts[len(s.dts)-1]
+    startDate, endDate := models.NewVnTime(time.Time{}), s.dts[len(s.dts)-1]
     maxPNL, maxDrawdown, maxDrawdownPercent := s.capital, 0.0, 0.0
     totalTurnover, totalCommission := 0.0, 0.0
     totalTradeCount := 0
@@ -144,13 +144,13 @@ func (s *statisticEngine) CalculateResult(output bool) {
 
 func newStatisticEngine() *statisticEngine {
     return &statisticEngine{
-        trades: make(map[int]*strategy.TradeData),
-        orders: make(map[string]*strategy.Order),
-        closes: make(map[strategy.VnTime]map[strategy.Symbol]float64),
-        rates:  make(map[strategy.Symbol]float64),
+        trades: make(map[int]*models.TradeData),
+        orders: make(map[string]*models.Order),
+        closes: make(map[models.VnTime]map[models.Symbol]float64),
+        rates:  make(map[models.Symbol]float64),
     }
 }
 
-func (s *statisticEngine) setRate(symbol strategy.Symbol, rate float64) {
+func (s *statisticEngine) setRate(symbol models.Symbol, rate float64) {
     s.rates[symbol] = rate
 }

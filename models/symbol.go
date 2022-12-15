@@ -1,4 +1,4 @@
-package strategy
+package models
 
 import "github.com/zhengow/vngo/types"
 

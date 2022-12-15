@@ -6,6 +6,7 @@ import (
     "github.com/zhengow/vngo/chart"
     "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/database"
+    "github.com/zhengow/vngo/models"
     "github.com/zhengow/vngo/strategy"
     "github.com/zhengow/vngo/types"
     "github.com/zhengow/vngo/utils"
@@ -15,14 +16,14 @@ import (
 )
 
 type BacktestingEngine struct {
-    symbols     []strategy.Symbol
+    symbols     []models.Symbol
     interval    types.Interval
     start       time.Time
     end         time.Time
     strategy    strategy.Strategy
     _dts        mapset.Set
     dts         []time.Time
-    historyData map[string]map[time.Time]strategy.Bar
+    historyData map[string]map[time.Time]models.Bar
     datetime    time.Time
     *backtestingAccount
     *statisticEngine
@@ -31,14 +32,14 @@ type BacktestingEngine struct {
 func NewBacktestingEngine() *BacktestingEngine {
     return &BacktestingEngine{
         _dts:               mapset.NewSet(),
-        historyData:        make(map[string]map[time.Time]strategy.Bar),
+        historyData:        make(map[string]map[time.Time]models.Bar),
         backtestingAccount: newAccount(),
         statisticEngine:    newStatisticEngine(),
     }
 }
 
 func (b *BacktestingEngine) AddSymbol(name string, rate float64, exchange types.Exchange) *BacktestingEngine {
-    symbol := strategy.Symbol{
+    symbol := models.Symbol{
         Exchange: exchange,
         Name:     name,
     }
@@ -95,7 +96,7 @@ func (b *BacktestingEngine) LoadData() {
     end := b.end.Format(consts.DateFormat)
     for _, symbol := range b.symbols {
         if b.historyData[symbol.Name] == nil {
-            b.historyData[symbol.Name] = make(map[time.Time]strategy.Bar)
+            b.historyData[symbol.Name] = make(map[time.Time]models.Bar)
         }
         bars := database.LoadBarData(symbol, b.interval, start, end)
         for _, bar := range bars {
@@ -126,7 +127,7 @@ func (b *BacktestingEngine) RunBacktesting() {
 
 func (b *BacktestingEngine) newBars(dt time.Time) {
     b.datetime = dt
-    bars := make(map[strategy.Symbol]strategy.Bar)
+    bars := make(map[models.Symbol]models.Bar)
     for _, symbol := range b.symbols {
         bars[symbol] = b.historyData[symbol.Name][dt]
     }
@@ -136,7 +137,7 @@ func (b *BacktestingEngine) newBars(dt time.Time) {
     b.statisticEngine.onBars(bars)
 }
 
-func (b *BacktestingEngine) crossLimitOrder(bars map[strategy.Symbol]strategy.Bar) {
+func (b *BacktestingEngine) crossLimitOrder(bars map[models.Symbol]models.Bar) {
     for _, order := range b.backtestingAccount.Orders {
         bar := bars[order.Symbol]
         longCrossPrice := bar.LowPrice
@@ -172,14 +173,14 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[strategy.Symbol]strategy.Ba
             tradePrice = math.Max(order.Price, shortBestPrice)
         }
 
-        tradeData := strategy.NewTradeData(
+        tradeData := models.NewTradeData(
             order.Symbol,
             order.OrderId,
             b.tradeCount,
             order.Direction,
             tradePrice,
             order.Volume,
-            strategy.NewVnTime(b.datetime),
+            models.NewVnTime(b.datetime),
         )
 
         incrementPos := order.Volume
@@ -193,28 +194,28 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[strategy.Symbol]strategy.Ba
 }
 
 func (b *BacktestingEngine) ShowPNLChart() {
-    dts := make([]strategy.VnTime, len(b.dts))
+    dts := make([]models.VnTime, len(b.dts))
     for idx, dt := range b.dts {
-        dts[idx] = strategy.NewVnTime(dt)
+        dts[idx] = models.NewVnTime(dt)
     }
     chart.ChartPNL(dts, b.balances, "")
 }
 
 func (b *BacktestingEngine) ShowKLineChart() {
     for _, symbol := range b.symbols {
-        bars := make([]strategy.Bar, len(b.dts))
+        bars := make([]models.Bar, len(b.dts))
         for idx, dt := range b.dts {
             bars[idx] = b.historyData[symbol.Name][dt]
         }
-        trades := make([]*strategy.TradeData, 0)
+        trades := make([]*models.TradeData, 0)
         for _, trade := range b.trades {
             if trade.Symbol.Name == symbol.Name {
                 trades = append(trades, trade)
             }
         }
-        dts := make([]strategy.VnTime, len(b.dts))
+        dts := make([]models.VnTime, len(b.dts))
         for idx, dt := range b.dts {
-            dts[idx] = strategy.NewVnTime(dt)
+            dts[idx] = models.NewVnTime(dt)
         }
         chart.ChartKLines(dts, bars, trades, symbol.Name)
     }

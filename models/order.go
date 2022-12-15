@@ -1,39 +1,36 @@
-package strategy
+package models
 
 import (
     "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/types"
 )
 
-type TradeData struct {
+type Order struct {
     Symbol    Symbol
     OrderId   string
-    TradeId   int
     Direction types.Direction
     Price     float64
     Volume    float64
-    Datetime  VnTime
+    Status    types.Status
+    Traded    float64
+    //datetime models.VnTime
 }
 
-func NewTradeData(symbol Symbol,
+func NewOrder(symbol Symbol,
     orderId string,
-    tradeId int,
     direction types.Direction,
     price float64,
     volume float64,
-    datetime VnTime,
-) *TradeData {
-    return &TradeData{
+//status Status,
+//    datetime models.VnTime
+) *Order {
+    return &Order{
         Symbol:    symbol,
         OrderId:   orderId,
-        TradeId:   tradeId,
         Direction: direction,
         Price:     price,
         Volume:    volume,
-        Datetime:  datetime,
+        Status:    consts.StatusEnum.SUBMITTING,
+        //datetime: datetime,
     }
-}
-
-func (t *TradeData) IsSell() bool {
-    return t.Direction == consts.DirectionEnum.SHORT
 }

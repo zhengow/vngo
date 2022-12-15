@@ -2,26 +2,27 @@ package engine
 
 import (
     mapset "github.com/deckarep/golang-set"
+    "github.com/zhengow/vngo/models"
     "github.com/zhengow/vngo/strategy"
     "github.com/zhengow/vngo/types"
     "time"
 )
 
 type BaseEngine struct {
-    symbols     []strategy.Symbol
+    symbols     []models.Symbol
     interval    types.Interval
     start       time.Time
     end         time.Time
     strategy    strategy.Strategy
     _dts        mapset.Set
     dts         []time.Time
-    historyData map[string]map[time.Time]strategy.Bar
+    historyData map[string]map[time.Time]models.Bar
     datetime    time.Time
     *BaseAccount
 }
 
 func (b *BaseEngine) AddSymbol(name string, exchange types.Exchange) *BaseEngine {
-    symbol := strategy.Symbol{
+    symbol := models.Symbol{
         Exchange: exchange,
         Name:     name,
     }

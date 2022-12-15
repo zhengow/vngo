@@ -4,7 +4,7 @@ import (
     "fmt"
     "github.com/go-echarts/go-echarts/v2/charts"
     "github.com/go-echarts/go-echarts/v2/opts"
-    "github.com/zhengow/vngo/strategy"
+    "github.com/zhengow/vngo/models"
     "github.com/zhengow/vngo/utils"
     "io/ioutil"
     "net/http"
@@ -15,7 +15,7 @@ const BUYICON = "image://data:image/svg+xml;base64,PHN2ZyB0PSIxNjcwMTI1NTQ5ODEwI
 
 const SELLICON = "image://data:image/svg+xml;base64,PHN2ZyB0PSIxNjcwMTI1NTg0NDM3IiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjI2MDkiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48cGF0aCBkPSJNNTExLjY1NzcwNCA5NTkuMzUxNjA4YzAgMCA4OS40MzQ5MTUtMzI2LjI1ODY2OSAzMTAuNzM0MDktNTE3Ljg3Nzg3MSAwIDAtMTA5LjM3MDk2Ni03LjAxMTY5NC0yNzYuNDU4NDQ5IDEwNi4zMjM1NjFsMC4yNTE3MzMtNDgzLjczMTE2Ni02Ni44NDc0NzcgMCAwIDQ4My40Mzk1MjRjMCAwLTEzOS43MDI3ODYtOTYuNjg1MDQtMjc4LjQxODA4MS0xMDYuMDMxOTE4QzIwMC45MTk1MjEgNDQxLjQ3MzczNyA0MDYuMTAyNjQ2IDYxNC45MjMxMTQgNTExLjY1NzcwNCA5NTkuMzUxNjA4eiIgcC1pZD0iMjYxMCIgZmlsbD0iIzFhZmEyOSI+PC9wYXRoPjwvc3ZnPg=="
 
-func getXData(x []strategy.VnTime) []string {
+func getXData(x []models.VnTime) []string {
     data := make([]string, len(x))
     for idx, _data := range x {
         data[idx] = _data.Format()
@@ -67,7 +67,7 @@ func getGlobalOpts() []charts.GlobalOpts {
     return []charts.GlobalOpts{titleOpts, initOpts, toolBoxOpts, toolTipOpts, dataZoomOpts, yAxisOpts}
 }
 
-func ChartPNL(x []strategy.VnTime, y []float64, _filename string) {
+func ChartPNL(x []models.VnTime, y []float64, _filename string) {
     line := charts.NewLine()
     globalOpts := getGlobalOpts()
     line.SetGlobalOptions(globalOpts...)
@@ -88,7 +88,7 @@ func ChartPNL(x []strategy.VnTime, y []float64, _filename string) {
     }
 }
 
-func getKLineData(bars []strategy.Bar) []opts.KlineData {
+func getKLineData(bars []models.Bar) []opts.KlineData {
     klineData := make([]opts.KlineData, len(bars))
     for idx, bar := range bars {
         klineData[idx] = opts.KlineData{
@@ -132,7 +132,7 @@ func getKLineGlobalOpts() []charts.GlobalOpts {
     return []charts.GlobalOpts{titleOpts, initOpts, toolBoxOpts, toolTipOpts, dataZoomOpts, yAxisOpts}
 }
 
-func getTradesDataPoints(trades []*strategy.TradeData) []opts.ScatterData {
+func getTradesDataPoints(trades []*models.TradeData) []opts.ScatterData {
     scatterData := make([]opts.ScatterData, len(trades))
     for idx, trade := range trades {
         icon := BUYICON
@@ -152,7 +152,7 @@ func getTradesDataPoints(trades []*strategy.TradeData) []opts.ScatterData {
     return scatterData
 }
 
-func chartTradeScatter(x []strategy.VnTime, trades []*strategy.TradeData) *charts.Scatter {
+func chartTradeScatter(x []models.VnTime, trades []*models.TradeData) *charts.Scatter {
     if len(trades) == 0 {
         return nil
     }
@@ -165,7 +165,7 @@ func chartTradeScatter(x []strategy.VnTime, trades []*strategy.TradeData) *chart
     return scatter
 }
 
-func ChartKLines(x []strategy.VnTime, y []strategy.Bar, trades []*strategy.TradeData, _filename string) {
+func ChartKLines(x []models.VnTime, y []models.Bar, trades []*models.TradeData, _filename string) {
     kline := charts.NewKLine()
     kline.SetGlobalOptions(getKLineGlobalOpts()...)
     kline.SetXAxis(getXData(x)).AddSeries("kline", getKLineData(y))

@@ -2,28 +2,28 @@ package database
 
 import (
     "fmt"
-    "github.com/zhengow/vngo/strategy"
+    "github.com/zhengow/vngo/models"
     "github.com/zhengow/vngo/types"
 )
 
 type Database interface {
     LoadBarData(
-        symbol strategy.Symbol,
+        symbol models.Symbol,
         interval types.Interval,
         start string,
         end string,
-    ) []strategy.Bar
-    SaveBarData([]strategy.Bar) bool
+    ) []models.Bar
+    SaveBarData([]models.Bar) bool
 }
 
 var DB Database // default sqlite
 
 func LoadBarData(
-    symbol strategy.Symbol,
+    symbol models.Symbol,
     interval types.Interval,
     start string,
     end string,
-) []strategy.Bar {
+) []models.Bar {
     if DB == nil {
         DB = NewSqlite()
         if DB == nil {

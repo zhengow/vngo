@@ -4,6 +4,7 @@ import (
     "fmt"
     mapset "github.com/deckarep/golang-set"
     "github.com/zhengow/vngo/gateway"
+    "github.com/zhengow/vngo/models"
     "github.com/zhengow/vngo/strategy"
     "github.com/zhengow/vngo/types"
     "github.com/zhengow/vngo/utils"
@@ -13,12 +14,12 @@ import (
 
 type LiveTradeEngine struct {
     *BaseEngine
-    symbols     []strategy.Symbol
+    symbols     []models.Symbol
     interval    types.Interval
     strategy    strategy.Strategy
-    datetime    *strategy.VnTime
+    datetime    *models.VnTime
     _dts        mapset.Set
-    historyData map[string]map[strategy.VnTime]strategy.Bar
+    historyData map[string]map[models.VnTime]models.Bar
     *BaseAccount
     gI gateway.GatewayInterface
 }
@@ -33,13 +34,13 @@ func NewLiveTradeEngine(gI gateway.GatewayInterface) *LiveTradeEngine {
         _dts:        mapset.NewSet(),
         BaseAccount: nil,
         gI:          gI,
-        historyData: make(map[string]map[strategy.VnTime]strategy.Bar),
+        historyData: make(map[string]map[models.VnTime]models.Bar),
     }
     return _LiveTradeEngine
 }
 
 func (b *LiveTradeEngine) SetParameters(
-    symbols []strategy.Symbol,
+    symbols []models.Symbol,
     interval types.Interval,
 ) {
     b.symbols = symbols
@@ -48,7 +49,7 @@ func (b *LiveTradeEngine) SetParameters(
 
 func (b *LiveTradeEngine) AddStrategy(strategy strategy.Strategy, setting map[string]interface{}) {
     strategy.SetSetting(strategy, setting)
-    //strategy.Inject(b.AccountEngine)
+    //models.Inject(b.AccountEngine)
     b.strategy = strategy
 }
 
@@ -62,7 +63,7 @@ func (b *LiveTradeEngine) LoadData() {
         }
         if bars != nil {
             if b.historyData[symbol.Name] == nil {
-                b.historyData[symbol.Name] = make(map[strategy.VnTime]strategy.Bar)
+                b.historyData[symbol.Name] = make(map[models.VnTime]models.Bar)
             }
             for _, bar := range bars {
                 _time := bar.Datetime
@@ -76,10 +77,10 @@ func (b *LiveTradeEngine) LoadData() {
 }
 
 func (b *LiveTradeEngine) preRun() {
-    dts := make([]strategy.VnTime, b._dts.Cardinality())
+    dts := make([]models.VnTime, b._dts.Cardinality())
     cnt := 0
     b._dts.Each(func(ele interface{}) bool {
-        dts[cnt] = ele.(strategy.VnTime)
+        dts[cnt] = ele.(models.VnTime)
         cnt++
         return false
     })
@@ -95,10 +96,10 @@ func (b *LiveTradeEngine) preRun() {
 func (b *LiveTradeEngine) Run() {
     b.gI.WebSocketKLine(b.symbols, b.interval)
     // b.vngo.
-    // dts = make([]strategy.VnTime, b._dts.Cardinality())
+    // dts = make([]models.VnTime, b._dts.Cardinality())
     // cnt := 0
     // b._dts.Each(func(ele interface{}) bool {
-    // 	dts[cnt] = ele.(strategy.VnTime)
+    // 	dts[cnt] = ele.(models.VnTime)
     // 	cnt++
     // 	return false
     // })
@@ -111,8 +112,8 @@ func (b *LiveTradeEngine) Run() {
     // }
 }
 
-func (b *LiveTradeEngine) newBars(dt strategy.VnTime) {
-    bars := make(map[strategy.Symbol]strategy.Bar)
+func (b *LiveTradeEngine) newBars(dt models.VnTime) {
+    bars := make(map[models.Symbol]models.Bar)
     for _, symbol := range b.symbols {
         bars[symbol] = b.historyData[symbol.Name][dt]
     }

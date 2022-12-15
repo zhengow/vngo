@@ -2,26 +2,27 @@ package strategy
 
 import (
     "fmt"
+    "github.com/zhengow/vngo/models"
     "reflect"
 )
 
 type accountInterface interface {
-    Buy(symbol Symbol, price, volume float64) string
-    Sell(symbol Symbol, price, volume float64) string
+    Buy(symbol models.Symbol, price, volume float64) string
+    Sell(symbol models.Symbol, price, volume float64) string
     CancelAll()
     CancelById(orderId string)
-    GetPositions() map[Symbol]float64
+    GetPositions() map[models.Symbol]float64
     GetCash() float64
     GetBalance() float64
 }
 
-type marketInterface interface {
-    CurrentTime() VnTime
-}
+//type marketInterface interface {
+//    CurrentTime() VnTime
+//}
 
 type BaseStrategy struct {
     accountInterface
-    marketInterface
+    //marketInterface
 }
 
 func (s *BaseStrategy) Inject(aI accountInterface) {
@@ -40,26 +41,26 @@ func (s *BaseStrategy) SetSetting(strategy interface{}, setting map[string]inter
     }
 }
 
-func (s *BaseStrategy) OnBars(map[Symbol]Bar) {
+func (s *BaseStrategy) OnBars(map[models.Symbol]models.Bar) {
 }
 
-func (s *BaseStrategy) UpdateTrade(TradeData) {
+func (s *BaseStrategy) UpdateTrade(models.TradeData) {
 }
 
-func (s *BaseStrategy) UpdateOrder(*Order) {
+func (s *BaseStrategy) UpdateOrder(*models.Order) {
 }
 
 type Strategy interface {
     Inject(accountInterface)
     SetSetting(interface{}, map[string]interface{})
-    OnBars(map[Symbol]Bar)
-    UpdateTrade(TradeData)
-    UpdateOrder(*Order)
+    OnBars(map[models.Symbol]models.Bar)
+    UpdateTrade(models.TradeData)
+    UpdateOrder(*models.Order)
 }
 
-//type Bar interface {
+//type models.Bar interface {
 //    GetDateTime() time.Time
-//    GetSymbol() Symbol
+//    Getmodels.Symbol() models.Symbol
 //    GetOpen() float64
 //    GetHigh() float64
 //    GetLow() float64
@@ -67,15 +68,15 @@ type Strategy interface {
 //    GetVolume() float64
 //}
 //
-//type Symbol interface {
+//type models.Symbol interface {
 //    GetName() string
 //    GetExchange() string
 //}
 //
-//type TradeData interface {
+//type models.TradeData interface {
 //    IsSell() bool
 //    GetDateTime() time.Time
-//    GetSymbol() Symbol
+//    Getmodels.Symbol() models.Symbol
 //    GetPrice() float64
 //    GetVolume() float64
 //}
