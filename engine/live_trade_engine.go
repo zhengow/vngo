@@ -13,7 +13,7 @@ import (
 )
 
 type LiveTradeEngine struct {
-    *BaseEngine
+    BaseEngine
     symbols     []models.Symbol
     interval    types.Interval
     strategy    strategy.Strategy

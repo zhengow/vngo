@@ -6,6 +6,7 @@ import (
     "github.com/zhengow/vngo/chart"
     "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/database"
+    "github.com/zhengow/vngo/engine"
     "github.com/zhengow/vngo/models"
     "github.com/zhengow/vngo/strategy"
     "github.com/zhengow/vngo/types"
@@ -27,6 +28,7 @@ type BacktestingEngine struct {
     datetime    time.Time
     *backtestingAccount
     *statisticEngine
+    engine.BaseEngine
 }
 
 func NewBacktestingEngine() *BacktestingEngine {
@@ -133,7 +135,8 @@ func (b *BacktestingEngine) newBars(dt time.Time) {
     }
     b.crossLimitOrder(bars)
     b.backtestingAccount.updateCloses(bars)
-    b.strategy.OnBars(bars)
+    b.Queue.Bars <- bars
+    <-b.Queue.Continue
     b.statisticEngine.onBars(bars)
 }
 
@@ -147,7 +150,8 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[models.Symbol]models.Bar) {
 
         if order.Status == consts.StatusEnum.SUBMITTING {
             order.Status = consts.StatusEnum.NOTTRADED
-            b.strategy.UpdateOrder(order)
+            b.Queue.Order <- order
+            <-b.Queue.Continue
             b.statisticEngine.updateOrder(order)
         }
 
@@ -160,7 +164,9 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[models.Symbol]models.Bar) {
 
         order.Traded = order.Volume
         order.Status = consts.StatusEnum.ALLTRADED
-        b.strategy.UpdateOrder(order)
+
+        b.Queue.Order <- order
+        <-b.Queue.Continue
 
         delete(b.backtestingAccount.Orders, order.OrderId)
 
@@ -188,7 +194,8 @@ func (b *BacktestingEngine) crossLimitOrder(bars map[models.Symbol]models.Bar) {
             incrementPos = -order.Volume
         }
         b.backtestingAccount.updatePositions(order.Symbol, incrementPos, tradePrice)
-        b.strategy.UpdateTrade(*tradeData)
+        b.Queue.Trade <- *tradeData
+        <-b.Queue.Continue
         b.trades[b.tradeCount] = tradeData
     }
 }
@@ -219,4 +226,8 @@ func (b *BacktestingEngine) ShowKLineChart() {
         }
         chart.ChartKLines(dts, bars, trades, symbol.Name)
     }
+}
+
+func (b *BacktestingEngine) GetAccount() models.Account {
+    return b.backtestingAccount
 }

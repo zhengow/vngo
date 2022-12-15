@@ -3,6 +3,7 @@ package engine
 import (
     mapset "github.com/deckarep/golang-set"
     "github.com/zhengow/vngo/models"
+    "github.com/zhengow/vngo/queue"
     "github.com/zhengow/vngo/strategy"
     "github.com/zhengow/vngo/types"
     "time"
@@ -13,12 +14,12 @@ type BaseEngine struct {
     interval    types.Interval
     start       time.Time
     end         time.Time
-    strategy    strategy.Strategy
     _dts        mapset.Set
     dts         []time.Time
     historyData map[string]map[time.Time]models.Bar
     datetime    time.Time
     *BaseAccount
+    queue.Queue
 }
 
 func (b *BaseEngine) AddSymbol(name string, exchange types.Exchange) *BaseEngine {
@@ -55,8 +56,20 @@ func (b *BaseEngine) EndDate(date time.Time) *BaseEngine {
 func (b *BaseEngine) AddStrategy(strategy strategy.Strategy, setting map[string]interface{}) {
     strategy.SetSetting(strategy, setting)
     strategy.Inject(b.BaseAccount)
-    b.strategy = strategy
 }
 
 func (b *BaseEngine) LoadData() {
+}
+
+func (b *BaseEngine) Register(q queue.Queue) {
+    b.Queue = q
+}
+
+func (b *BaseEngine) GetAccount() models.Account {
+    return b.BaseAccount
+}
+
+type Engine interface {
+    Register(queue.Queue)
+    GetAccount() models.Account
 }

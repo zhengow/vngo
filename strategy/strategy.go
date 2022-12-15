@@ -3,6 +3,7 @@ package strategy
 import (
     "fmt"
     "github.com/zhengow/vngo/models"
+    "github.com/zhengow/vngo/queue"
     "reflect"
 )
 
@@ -22,6 +23,7 @@ type accountInterface interface {
 
 type BaseStrategy struct {
     accountInterface
+    queue.Queue
     //marketInterface
 }
 

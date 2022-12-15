@@ -72,3 +72,6 @@ func (b *baseOrderRuler) VolumeToTickSize(symbol models.Symbol, quantity float64
         return quantity
     }
 }
+
+type Account struct {
+}
