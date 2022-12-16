@@ -1,4 +1,4 @@
-package backtesting_engine
+package backtesting
 
 import (
     "fmt"

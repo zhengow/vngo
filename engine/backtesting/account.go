@@ -1,15 +1,14 @@
-package backtesting_engine
+package backtesting
 
 import (
     "github.com/zhengow/vngo/consts"
-    "github.com/zhengow/vngo/engine"
     "github.com/zhengow/vngo/models"
     "github.com/zhengow/vngo/types"
     "strconv"
 )
 
 type backtestingAccount struct {
-    engine.BaseAccount
+    models.BaseAccount
     limitOrderCount int
     closes          map[models.Symbol]float64
 }

@@ -1,4 +1,4 @@
-package backtesting_engine
+package backtesting
 
 import (
     "fmt"
@@ -123,6 +123,7 @@ func (b *BacktestingEngine) RunBacktesting() {
     })
 
     for _, dt := range b.dts {
+        //fmt.Printf("%d/%d\n", idx, len(b.dts))
         b.newBars(dt)
     }
 }

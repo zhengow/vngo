@@ -20,8 +20,8 @@ type LiveTradeEngine struct {
     datetime    *models.VnTime
     _dts        mapset.Set
     historyData map[string]map[models.VnTime]models.Bar
-    *BaseAccount
-    gI gateway.GatewayInterface
+    account     models.Account
+    gI          gateway.GatewayInterface
 }
 
 var _LiveTradeEngine *LiveTradeEngine
@@ -32,7 +32,7 @@ func NewLiveTradeEngine(gI gateway.GatewayInterface) *LiveTradeEngine {
     }
     _LiveTradeEngine = &LiveTradeEngine{
         _dts:        mapset.NewSet(),
-        BaseAccount: nil,
+        account:     nil,
         gI:          gI,
         historyData: make(map[string]map[models.VnTime]models.Bar),
     }
