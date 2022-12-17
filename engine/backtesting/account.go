@@ -1,9 +1,7 @@
 package backtesting
 
 import (
-    "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/models"
-    "github.com/zhengow/vngo/types"
     "strconv"
 )
 
@@ -14,14 +12,14 @@ type backtestingAccount struct {
 }
 
 func (o *backtestingAccount) Buy(symbol models.Symbol, price, volume float64) string {
-    return o.sendOrder(symbol, consts.DirectionEnum.LONG, price, volume)
+    return o.sendOrder(symbol, models.DirectionEnum.LONG, price, volume)
 }
 
 func (o *backtestingAccount) Sell(symbol models.Symbol, price, volume float64) string {
-    return o.sendOrder(symbol, consts.DirectionEnum.SHORT, price, volume)
+    return o.sendOrder(symbol, models.DirectionEnum.SHORT, price, volume)
 }
 
-func (o *backtestingAccount) sendOrder(symbol models.Symbol, direction types.Direction, price, volume float64) string {
+func (o *backtestingAccount) sendOrder(symbol models.Symbol, direction models.Direction, price, volume float64) string {
     price = o.PriceToTickSize(symbol, price)
     volume = o.VolumeToTickSize(symbol, volume)
     o.limitOrderCount++
@@ -74,7 +72,7 @@ func (o *backtestingAccount) GetBalance() float64 {
     return balance
 }
 
-func (o *backtestingAccount) updateCloses(bars map[models.Symbol]models.Bar) {
+func (o *backtestingAccount) updateCloses(bars map[string]models.Bar) {
     for _, bar := range bars {
         o.closes[bar.Symbol] = bar.ClosePrice
     }

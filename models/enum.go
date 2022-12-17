@@ -1,14 +1,12 @@
-package consts
-
-import "github.com/zhengow/vngo/types"
+package models
 
 type interval struct {
-    MINUTE      types.Interval
-    HOUR        types.Interval
-    DAILY       types.Interval
-    WEEKLY      types.Interval
-    TICK        types.Interval
-    TRANSACTION types.Interval
+    MINUTE      Interval
+    HOUR        Interval
+    DAILY       Interval
+    WEEKLY      Interval
+    TICK        Interval
+    TRANSACTION Interval
 }
 
 var IntervalEnum = interval{
@@ -19,7 +17,7 @@ var IntervalEnum = interval{
 }
 
 type exchange struct {
-    BINANCE types.Exchange
+    BINANCE Exchange
 }
 
 var ExchangeEnum = exchange{
@@ -27,8 +25,8 @@ var ExchangeEnum = exchange{
 }
 
 type direction struct {
-    LONG  types.Direction
-    SHORT types.Direction
+    LONG  Direction
+    SHORT Direction
 }
 
 var DirectionEnum = direction{
@@ -37,12 +35,12 @@ var DirectionEnum = direction{
 }
 
 type status struct {
-    SUBMITTING types.Status
-    NOTTRADED  types.Status
-    PARTTRADED types.Status
-    ALLTRADED  types.Status
-    CANCELLED  types.Status
-    REJECTED   types.Status
+    SUBMITTING Status
+    NOTTRADED  Status
+    PARTTRADED Status
+    ALLTRADED  Status
+    CANCELLED  Status
+    REJECTED   Status
 }
 
 var StatusEnum = status{

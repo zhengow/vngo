@@ -55,7 +55,7 @@ func (s *BaseStrategy) UpdateOrder(*models.Order) {
 type Strategy interface {
     Inject(accountInterface)
     SetSetting(interface{}, map[string]interface{})
-    OnBars(map[models.Symbol]models.Bar)
+    OnBars(map[string]models.Bar)
     UpdateTrade(models.TradeData)
     UpdateOrder(*models.Order)
 }

@@ -3,7 +3,6 @@ package database
 import (
     "fmt"
     "github.com/zhengow/vngo/models"
-    "github.com/zhengow/vngo/types"
     "gorm.io/driver/sqlite"
     "gorm.io/gorm"
 )
@@ -26,7 +25,7 @@ func NewSqlite() *Sqlite {
 
 func (s *Sqlite) LoadBarData(
     symbol models.Symbol,
-    interval types.Interval,
+    interval models.Interval,
     start string,
     end string,
 ) []models.Bar {

@@ -6,7 +6,7 @@ import (
     "github.com/zhengow/vngo/gateway"
 )
 
-func NewBacktestingEngine() *backtesting.BacktestingEngine {
+func NewBacktestingEngine() *backtesting.Engine {
     return backtesting.NewBacktestingEngine()
 }
 

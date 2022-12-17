@@ -3,13 +3,12 @@ package database
 import (
     "fmt"
     "github.com/zhengow/vngo/models"
-    "github.com/zhengow/vngo/types"
 )
 
 type Database interface {
     LoadBarData(
         symbol models.Symbol,
-        interval types.Interval,
+        interval models.Interval,
         start string,
         end string,
     ) []models.Bar
@@ -20,7 +19,7 @@ var DB Database // default sqlite
 
 func LoadBarData(
     symbol models.Symbol,
-    interval types.Interval,
+    interval models.Interval,
     start string,
     end string,
 ) []models.Bar {

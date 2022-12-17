@@ -2,7 +2,6 @@ package backtesting
 
 import (
     "fmt"
-    "github.com/zhengow/vngo/consts"
     "github.com/zhengow/vngo/models"
     "github.com/zhengow/vngo/utils"
     "log"
@@ -16,17 +15,17 @@ type statisticEngine struct {
     orders     map[string]*models.Order
     tradeCount int
     trades     map[int]*models.TradeData
-    closes     map[models.VnTime]map[models.Symbol]float64
+    closes     map[models.VnTime]map[string]float64
     balances   []float64
-    rates      map[models.Symbol]float64
+    rates      map[string]float64
 }
 
 func (s *statisticEngine) setCapital(capital float64) {
     s.capital = capital
 }
 
-func (s *statisticEngine) onBars(bars map[models.Symbol]models.Bar) {
-    currentCloses := make(map[models.Symbol]float64)
+func (s *statisticEngine) onBars(bars map[string]models.Bar) {
+    currentCloses := make(map[string]float64)
     currentTime := models.VnTime{}
     for symbol, bar := range bars {
         currentCloses[symbol] = bar.ClosePrice
@@ -58,7 +57,7 @@ func (s *statisticEngine) CalculateResult(output bool) {
         return
     }
     trades := getTrades(s.trades)
-    currentPos := make(map[models.Symbol]float64)
+    currentPos := make(map[string]float64)
 
     startDate, endDate := models.NewVnTime(time.Time{}), s.dts[len(s.dts)-1]
     maxPNL, maxDrawdown, maxDrawdownPercent := s.capital, 0.0, 0.0
@@ -87,16 +86,16 @@ func (s *statisticEngine) CalculateResult(output bool) {
             }
             for _, _trade := range dtTrades {
                 volume := _trade.Volume
-                if _trade.Direction == consts.DirectionEnum.SHORT {
+                if _trade.Direction == models.DirectionEnum.SHORT {
                     volume *= -1
                 }
-                currentPos[_trade.Symbol] += volume
-                rate := s.rates[_trade.Symbol]
+                currentPos[_trade.Symbol.FullName()] += volume
+                rate := s.rates[_trade.Symbol.FullName()]
                 turnover := _trade.Price * _trade.Volume
                 fee := rate * _trade.Price * _trade.Volume
                 totalCommission += fee
                 totalTurnover += turnover
-                balance += volume*(closes[_trade.Symbol]-_trade.Price) - fee
+                balance += volume*(closes[_trade.Symbol.FullName()]-_trade.Price) - fee
                 totalTradeCount++
             }
         }
@@ -146,11 +145,13 @@ func newStatisticEngine() *statisticEngine {
     return &statisticEngine{
         trades: make(map[int]*models.TradeData),
         orders: make(map[string]*models.Order),
-        closes: make(map[models.VnTime]map[models.Symbol]float64),
-        rates:  make(map[models.Symbol]float64),
+        closes: make(map[models.VnTime]map[string]float64),
+        rates:  make(map[string]float64),
     }
 }
 
-func (s *statisticEngine) setRate(symbol models.Symbol, rate float64) {
-    s.rates[symbol] = rate
+func (s *statisticEngine) SetRates(symbols []models.Symbol, rates []float64) {
+    for idx, rate := range rates {
+        s.rates[symbols[idx].FullName()] = rate
+    }
 }

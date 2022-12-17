@@ -1,6 +1,7 @@
 package vngo
 
 import (
+    "github.com/zhengow/vngo/models"
     "testing"
 )
 

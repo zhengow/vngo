@@ -6,7 +6,6 @@ import (
     "github.com/zhengow/vngo/gateway"
     "github.com/zhengow/vngo/models"
     "github.com/zhengow/vngo/strategy"
-    "github.com/zhengow/vngo/types"
     "github.com/zhengow/vngo/utils"
     "log"
     "sort"
@@ -15,7 +14,7 @@ import (
 type LiveTradeEngine struct {
     BaseEngine
     symbols     []models.Symbol
-    interval    types.Interval
+    interval    models.Interval
     strategy    strategy.Strategy
     datetime    *models.VnTime
     _dts        mapset.Set
@@ -41,7 +40,7 @@ func NewLiveTradeEngine(gI gateway.GatewayInterface) *LiveTradeEngine {
 
 func (b *LiveTradeEngine) SetParameters(
     symbols []models.Symbol,
-    interval types.Interval,
+    interval models.Interval,
 ) {
     b.symbols = symbols
     b.interval = interval
@@ -113,9 +112,9 @@ func (b *LiveTradeEngine) Run() {
 }
 
 func (b *LiveTradeEngine) newBars(dt models.VnTime) {
-    bars := make(map[models.Symbol]models.Bar)
+    bars := make(map[string]models.Bar)
     for _, symbol := range b.symbols {
-        bars[symbol] = b.historyData[symbol.Name][dt]
+        bars[symbol.FullName()] = b.historyData[symbol.FullName()][dt]
     }
     b.strategy.OnBars(bars)
 }

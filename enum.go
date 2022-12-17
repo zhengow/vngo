@@ -1,9 +1,7 @@
 package vngo
 
-import (
-    "github.com/zhengow/vngo/consts"
-)
+import "github.com/zhengow/vngo/models"
 
-var BinanceExchange = consts.ExchangeEnum.BINANCE
+var BinanceExchange = models.ExchangeEnum.BINANCE
 
-var MinuteInterval = consts.IntervalEnum.MINUTE
+var MinuteInterval = models.IntervalEnum.MINUTE

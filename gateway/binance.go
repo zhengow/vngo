@@ -4,7 +4,6 @@ import (
     "context"
     "fmt"
     "github.com/zhengow/vngo/models"
-    "github.com/zhengow/vngo/types"
     "github.com/zhengow/vngo/utils"
     "log"
     "time"
@@ -24,7 +23,7 @@ func NewFutureClient(apiKey, secretKey string) *binanceFutureClient {
     }
 }
 
-func (f *binanceFutureClient) LoadBarData(symbol models.Symbol, interval types.Interval) ([]models.Bar, error) {
+func (f *binanceFutureClient) LoadBarData(symbol models.Symbol, interval models.Interval) ([]models.Bar, error) {
     res, err := f.client.NewKlinesService().Symbol(symbol.Name).Interval(string(interval)).Do(context.Background())
     if err != nil {
         log.Fatalf("load bar data err: %v", err)
@@ -49,7 +48,7 @@ func (f *binanceFutureClient) LoadBarData(symbol models.Symbol, interval types.I
     return bars, nil
 }
 
-func (f *binanceFutureClient) WebSocketKLine(symbols []models.Symbol, interval types.Interval) {
+func (f *binanceFutureClient) WebSocketKLine(symbols []models.Symbol, interval models.Interval) {
     wsKlineHandler := func(event *futures.WsKlineEvent) {
         fmt.Println(event)
     }

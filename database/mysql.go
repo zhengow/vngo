@@ -4,7 +4,6 @@ import (
     "fmt"
     "github.com/zhengow/vngo/config"
     "github.com/zhengow/vngo/models"
-    "github.com/zhengow/vngo/types"
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
 )
@@ -27,7 +26,7 @@ func NewMysql(mysqlConfig *config.MysqlConfig) *Mysql {
 
 func (s *Mysql) LoadBarData(
     symbol models.Symbol,
-    interval types.Interval,
+    interval models.Interval,
     start string,
     end string,
 ) []models.Bar {

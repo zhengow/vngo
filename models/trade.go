@@ -1,15 +1,10 @@
 package models
 
-import (
-    "github.com/zhengow/vngo/consts"
-    "github.com/zhengow/vngo/types"
-)
-
 type TradeData struct {
     Symbol    Symbol
     OrderId   string
     TradeId   int
-    Direction types.Direction
+    Direction Direction
     Price     float64
     Volume    float64
     Datetime  VnTime
@@ -18,7 +13,7 @@ type TradeData struct {
 func NewTradeData(symbol Symbol,
     orderId string,
     tradeId int,
-    direction types.Direction,
+    direction Direction,
     price float64,
     volume float64,
     datetime VnTime,
@@ -35,5 +30,5 @@ func NewTradeData(symbol Symbol,
 }
 
 func (t *TradeData) IsSell() bool {
-    return t.Direction == consts.DirectionEnum.SHORT
+    return t.Direction == DirectionEnum.SHORT
 }
