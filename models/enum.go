@@ -51,3 +51,13 @@ var StatusEnum = status{
     CANCELLED:  "已撤销",
     REJECTED:   "拒单",
 }
+
+type engine struct {
+    BACKTESTENGINE  EngineType
+    LIVETRADEENGINE EngineType
+}
+
+var EngineEnum = engine{
+    BACKTESTENGINE:  "BACKTESTENGINE",
+    LIVETRADEENGINE: "LIVETRADEENGINE",
+}

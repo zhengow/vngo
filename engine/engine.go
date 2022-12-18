@@ -7,18 +7,22 @@ import (
 )
 
 type BaseEngine struct {
-    Kind     string
+    kind     models.EngineType
     symbols  []models.Symbol
     interval models.Interval
     account  models.Account
-    queue.Queue
+    *queue.Queue
 }
 
-//func (b *BaseEngine) addSymbol(name string, exchange models.Exchange) *BaseEngine {
-//    symbol := models.NewSymbol(name, exchange)
-//    b.symbols = append(b.symbols, symbol)
-//    return b
-//}
+func NewBaseEngine(kind models.EngineType) *BaseEngine {
+    return &BaseEngine{
+        kind: kind,
+    }
+}
+
+func (b *BaseEngine) GetKind() models.EngineType {
+    return b.kind
+}
 
 func (b *BaseEngine) AddSymbols(symbols []models.Symbol) *BaseEngine {
     b.symbols = symbols
@@ -41,7 +45,7 @@ func (b *BaseEngine) GetInterval() models.Interval {
 func (b *BaseEngine) LoadHistoryData(_, _ time.Time) {
 }
 
-func (b *BaseEngine) Register(q queue.Queue) {
+func (b *BaseEngine) SetQueue(q *queue.Queue) {
     b.Queue = q
 }
 
@@ -50,6 +54,6 @@ func (b *BaseEngine) GetAccount() models.Account {
 }
 
 type Engine interface {
-    Register(queue.Queue)
+    SetQueue(*queue.Queue)
     GetAccount() models.Account
 }

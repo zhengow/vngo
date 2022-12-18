@@ -20,7 +20,7 @@ type Engine struct {
     datetime    time.Time
     *backtestingAccount
     *statisticEngine
-    engine.BaseEngine
+    *engine.BaseEngine
 }
 
 func NewBacktestingEngine() *Engine {
@@ -29,7 +29,12 @@ func NewBacktestingEngine() *Engine {
         historyData:        make(map[string]map[time.Time]models.Bar),
         backtestingAccount: newAccount(),
         statisticEngine:    newStatisticEngine(),
+        BaseEngine:         engine.NewBaseEngine(models.EngineEnum.BACKTESTENGINE),
     }
+}
+
+func (b *Engine) GetAccount() models.Account {
+    return b.backtestingAccount
 }
 
 func (b *Engine) Capital(capital float64) *Engine {
@@ -58,7 +63,7 @@ func (b *Engine) LoadHistoryData(start, end time.Time) {
     }
 }
 
-func (b *Engine) RunBacktesting() {
+func (b *Engine) Run() {
     b.dts = make([]time.Time, b._dts.Cardinality())
     cnt := 0
     b._dts.Each(func(ele interface{}) bool {
@@ -84,7 +89,7 @@ func (b *Engine) newBars(dt time.Time) {
     }
     b.crossLimitOrder(bars)
     b.backtestingAccount.updateCloses(bars)
-    b.Queue.SendBarsSync(bars)
+    b.Queue.Bars.SendSync(bars)
     b.statisticEngine.onBars(bars)
 }
 
@@ -98,7 +103,7 @@ func (b *Engine) crossLimitOrder(bars map[string]models.Bar) {
 
         if order.Status == models.StatusEnum.SUBMITTING {
             order.Status = models.StatusEnum.NOTTRADED
-            b.Queue.SendOrderSync(order)
+            b.Queue.Order.SendSync(order)
             b.statisticEngine.updateOrder(order)
         }
 
@@ -112,7 +117,7 @@ func (b *Engine) crossLimitOrder(bars map[string]models.Bar) {
         order.Traded = order.Volume
         order.Status = models.StatusEnum.ALLTRADED
 
-        b.Queue.SendOrderSync(order)
+        b.Queue.Order.SendSync(order)
 
         delete(b.backtestingAccount.Orders, order.OrderId)
 
@@ -140,7 +145,7 @@ func (b *Engine) crossLimitOrder(bars map[string]models.Bar) {
             incrementPos = -order.Volume
         }
         b.backtestingAccount.updatePositions(order.Symbol, incrementPos, tradePrice)
-        b.Queue.SendTradeSync(tradeData)
+        b.Queue.Trade.SendSync(tradeData)
         b.trades[b.tradeCount] = tradeData
     }
 }
@@ -171,8 +176,4 @@ func (b *Engine) ShowKLineChart() {
         }
         chart.ChartKLines(dts, bars, trades, symbol.FullName())
     }
-}
-
-func (b *Engine) GetAccount() models.Account {
-    return b.backtestingAccount
 }
