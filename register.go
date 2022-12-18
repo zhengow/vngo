@@ -19,21 +19,21 @@ func (l *Loader) Register(q queue.Queue, s strategy.Strategy) {
 func (l *Loader) ListenBar() {
     for bars := range l.Queue.Bars {
         l.OnBars(bars)
-        l.Queue.Continue <- struct{}{}
+        l.Continue()
     }
 }
 
 func (l *Loader) ListenTrade() {
     for trade := range l.Queue.Trade {
-        l.UpdateTrade(trade)
-        l.Queue.Continue <- struct{}{}
+        l.UpdateTrade(*trade)
+        l.Continue()
     }
 }
 
 func (l *Loader) ListenOrder() {
     for order := range l.Queue.Order {
         l.UpdateOrder(order)
-        l.Queue.Continue <- struct{}{}
+        l.Continue()
     }
 }
 

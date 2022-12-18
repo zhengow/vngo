@@ -84,8 +84,7 @@ func (b *Engine) newBars(dt time.Time) {
     }
     b.crossLimitOrder(bars)
     b.backtestingAccount.updateCloses(bars)
-    b.Queue.Bars <- bars
-    <-b.Queue.Continue
+    b.Queue.SendBarsSync(bars)
     b.statisticEngine.onBars(bars)
 }
 
@@ -99,8 +98,7 @@ func (b *Engine) crossLimitOrder(bars map[string]models.Bar) {
 
         if order.Status == models.StatusEnum.SUBMITTING {
             order.Status = models.StatusEnum.NOTTRADED
-            b.Queue.Order <- order
-            <-b.Queue.Continue
+            b.Queue.SendOrderSync(order)
             b.statisticEngine.updateOrder(order)
         }
 
@@ -114,8 +112,7 @@ func (b *Engine) crossLimitOrder(bars map[string]models.Bar) {
         order.Traded = order.Volume
         order.Status = models.StatusEnum.ALLTRADED
 
-        b.Queue.Order <- order
-        <-b.Queue.Continue
+        b.Queue.SendOrderSync(order)
 
         delete(b.backtestingAccount.Orders, order.OrderId)
 
@@ -143,8 +140,7 @@ func (b *Engine) crossLimitOrder(bars map[string]models.Bar) {
             incrementPos = -order.Volume
         }
         b.backtestingAccount.updatePositions(order.Symbol, incrementPos, tradePrice)
-        b.Queue.Trade <- *tradeData
-        <-b.Queue.Continue
+        b.Queue.SendTradeSync(tradeData)
         b.trades[b.tradeCount] = tradeData
     }
 }
