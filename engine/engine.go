@@ -54,6 +54,7 @@ func (b *BaseEngine) GetAccount() models.Account {
 }
 
 type Engine interface {
+    GetKind() models.EngineType
     SetQueue(*queue.Queue)
     GetAccount() models.Account
 }

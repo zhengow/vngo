@@ -16,6 +16,12 @@ func NewVnTime(t time.Time) VnTime {
     }
 }
 
+func NewVnTimeByTimestamp(ts int64) VnTime {
+    return VnTime{
+        time.UnixMilli(ts),
+    }
+}
+
 func (t *VnTime) Format() string {
     return t.Time.Format(DateFormat)
 }

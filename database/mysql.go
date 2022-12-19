@@ -31,7 +31,7 @@ func (s *Mysql) LoadBarData(
     end string,
 ) []models.Bar {
     var bars []models.Bar
-    s.db.Table("dbbardata").Where(fmt.Sprintf("symbol='%s' AND exchange='%s' AND `interval`='%s' AND datetime>='%s' AND datetime<='%s'",
+    s.db.Debug().Table("dbbardata").Where(fmt.Sprintf("symbol='%s' AND exchange='%s' AND `interval`='%s' AND datetime>='%s' AND datetime<='%s'",
         symbol.Name, symbol.Exchange, interval, start, end)).Order("datetime").Find(&bars)
     return bars
 }
