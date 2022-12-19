@@ -7,5 +7,6 @@ import (
 
 type GatewayInterface interface {
 	LoadBarData(models.Symbol, models.Interval) ([]models.Bar, error)
-	WebSocketKLine([]models.Symbol, models.Interval, *queue.Queue)
+	LoadBarDataByMinute([]models.Symbol, *queue.Queue)
+	// WebSocketKLine([]models.Symbol, models.Interval, *queue.Queue)
 }

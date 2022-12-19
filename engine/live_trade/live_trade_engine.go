@@ -70,7 +70,9 @@ func (b *Engine) preRun() {
 }
 
 func (b *Engine) Run() {
-	b.gI.WebSocketKLine(b.GetSymbols(), b.GetInterval(), b.Queue)
+	if b.GetInterval() == models.IntervalEnum.MINUTE {
+		b.gI.LoadBarDataByMinute(b.GetSymbols(), b.Queue)
+	}
 	// b.vngo.
 	// dts = make([]models.VnTime, b._dts.Cardinality())
 	// cnt := 0
