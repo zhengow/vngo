@@ -3,6 +3,7 @@ package strategy
 import (
     "fmt"
     "github.com/zhengow/vngo/models"
+    "github.com/zhengow/vngo/queue"
     "reflect"
 )
 
@@ -16,13 +17,9 @@ type accountInterface interface {
     GetBalance() float64
 }
 
-//type marketInterface interface {
-//    CurrentTime() VnTime
-//}
-
 type BaseStrategy struct {
     accountInterface
-    //marketInterface
+    q *queue.Queue
 }
 
 func (s *BaseStrategy) Inject(aI accountInterface) {
@@ -41,42 +38,32 @@ func (s *BaseStrategy) SetSetting(strategy interface{}, setting map[string]inter
     }
 }
 
-func (s *BaseStrategy) OnBars(map[models.Symbol]models.Bar) {
+func (s *BaseStrategy) OnInit(map[string]models.Bar) {
+    s.q.Init.CloseChan()
+}
+
+func (s *BaseStrategy) OnBars(map[string]models.Bar) {
+    s.q.Bars.CloseChan()
 }
 
 func (s *BaseStrategy) UpdateTrade(models.TradeData) {
+    s.q.Trade.CloseChan()
 }
 
 func (s *BaseStrategy) UpdateOrder(*models.Order) {
+    s.q.Order.CloseChan()
+}
+
+func (s *BaseStrategy) SetQueue(q *queue.Queue) {
+    s.q = q
 }
 
 type Strategy interface {
     Inject(accountInterface)
     SetSetting(interface{}, map[string]interface{})
-    OnBars(map[models.Symbol]models.Bar)
+    OnInit(map[string]models.Bar)
+    OnBars(map[string]models.Bar)
     UpdateTrade(models.TradeData)
     UpdateOrder(*models.Order)
+    SetQueue(q *queue.Queue)
 }
-
-//type models.Bar interface {
-//    GetDateTime() time.Time
-//    Getmodels.Symbol() models.Symbol
-//    GetOpen() float64
-//    GetHigh() float64
-//    GetLow() float64
-//    GetClose() float64
-//    GetVolume() float64
-//}
-//
-//type models.Symbol interface {
-//    GetName() string
-//    GetExchange() string
-//}
-//
-//type models.TradeData interface {
-//    IsSell() bool
-//    GetDateTime() time.Time
-//    Getmodels.Symbol() models.Symbol
-//    GetPrice() float64
-//    GetVolume() float64
-//}

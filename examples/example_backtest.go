@@ -19,7 +19,7 @@ func main() {
     endDate := time.Date(2022, 7, 2, 0, 0, 0, 0, time.Local)
     engine.StartDate(startDate).EndDate(endDate).Capital(10000)
     engine.AddStrategy(&MyStrategy{Depth: 2}, nil)
-    engine.LoadData()
+    engine.LoadHistoryData()
     engine.RunBacktesting()
     engine.CalculateResult(true)
     //engine.ShowPNLChart()

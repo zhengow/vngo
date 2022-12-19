@@ -1,15 +1,15 @@
 package vngo
 
 import (
-    "github.com/zhengow/vngo/engine"
-    "github.com/zhengow/vngo/engine/backtesting_engine"
+    "github.com/zhengow/vngo/engine/backtesting"
+    "github.com/zhengow/vngo/engine/live_trade"
     "github.com/zhengow/vngo/gateway"
 )
 
-func NewBacktestingEngine() *backtesting_engine.BacktestingEngine {
-    return backtesting_engine.NewBacktestingEngine()
+func NewBacktestingEngine() *backtesting.Engine {
+    return backtesting.NewBacktestingEngine()
 }
 
-func NewLiveTradeEngine(gI gateway.GatewayInterface) *engine.LiveTradeEngine {
-    return engine.NewLiveTradeEngine(gI)
+func NewLiveTradeEngine(gI gateway.GatewayInterface) *live_trade.Engine {
+    return live_trade.NewLiveTradeEngine(gI)
 }

@@ -2,14 +2,13 @@ package models
 
 import (
     "fmt"
-    "github.com/zhengow/vngo/types"
     "time"
 )
 
 type Bar struct {
     Symbol
     Datetime     VnTime `gorm:"type:datetime"`
-    Interval     types.Interval
+    Interval     Interval
     Volume       float64
     OpenInterest float64
     OpenPrice    float64
@@ -35,7 +34,7 @@ func (b *Bar) GetDatetime() time.Time {
 //    return b.Symbol
 //}
 //
-//func (b *Bar) GetInterval() types.Interval {
+//func (b *Bar) GetInterval() models.Interval {
 //    return b.Interval
 //}
 //

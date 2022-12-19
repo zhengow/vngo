@@ -56,5 +56,3 @@ func (t *VnTime) Scan(v interface{}) error {
     }
     return nil
 }
-
-const DateFormat = "2006-01-02 15:04:05"
